@@ -6,6 +6,7 @@ import MenuBar from "./components/SiderMenu/MenuBar";
 import HeaderComponents from "./components/Header/HeaderComponents";
 import './App.css'
 import TicketReconci from "./components/TicketReconciliation/TicketReconci";
+import ListTicket from "./components/ListTicket/ListTicket";
 
 function App() {
   return (
@@ -20,6 +21,7 @@ function App() {
               <Route path="/dashboard" element={<Dashboard />} />
               <Route path="/manage_ticket" element={<ManageTicket />} />
               <Route path="/ticket_reconciliation" element={<TicketReconci />} />
+              <Route path="/services" element={<ListTicket/>} />
               {/* Thêm các Route cho các trang khác */}
             </Routes>
           </Layout.Content>

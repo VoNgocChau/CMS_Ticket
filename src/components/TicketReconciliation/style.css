@@ -1,3 +1,22 @@
 .table-row-striped {
     background-color: #f5f5f5;
   }
+
+  .btn__custom {
+    background-color: #ff993b;
+    color: #ffffff;
+    border-color: #ff993b ;
+  }
+  .btn__custom:hover {
+    background-color: #ff993b !important;
+    color: #ffffff !important;
+    border-color: #ff993b !important;
+  }
+
+  .btn__loc {
+    width: 100px;
+    background-color: #ffffff;
+    border-color: #ff993b;
+    color: #ff993b;
+    font-weight: 700;
+  }
