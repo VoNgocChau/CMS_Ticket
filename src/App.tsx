@@ -1,13 +1,31 @@
-import {Routes, Route} from 'react-router-dom'
-import Dashboard from './components/Dashboard/Dashboard';
+import { Routes, Route, BrowserRouter } from "react-router-dom";
+import Dashboard from "./components/Dashboard/Dashboard";
+import ManageTicket from "./components/ManageTicket/ManageTicket";
+import { Layout } from "antd";
+import MenuBar from "./components/SiderMenu/MenuBar";
+import HeaderComponents from "./components/Header/HeaderComponents";
+import './App.css'
+import TicketReconci from "./components/TicketReconciliation/TicketReconci";
 
 function App() {
   return (
-    <div className="Router">
-         <Routes>
-          <Route path='/dashboard' Component={Dashboard}/>
-         </Routes>
-    </div>
+    <BrowserRouter>
+      <Layout style={{ minHeight: "100vh" }}>
+        <MenuBar />
+        <Layout>
+          <HeaderComponents/>
+          <Layout.Content className="content">
+            <Routes>
+              <Route path="/" element={<Dashboard />} />
+              <Route path="/dashboard" element={<Dashboard />} />
+              <Route path="/manage_ticket" element={<ManageTicket />} />
+              <Route path="/ticket_reconciliation" element={<TicketReconci />} />
+              {/* Thêm các Route cho các trang khác */}
+            </Routes>
+          </Layout.Content>
+        </Layout>
+      </Layout>
+    </BrowserRouter>
   );
 }
 

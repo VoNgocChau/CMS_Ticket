@@ -1,0 +1,39 @@
+.card__style {
+    margin: 0 45px;
+}
+
+.btn__style {
+    border-color: #ff993b;
+    color: #ff993b;
+    font-weight: 700;
+}
+.table-row-striped {
+    background-color: #f5f5f5;
+  }
+
+  .custom__datepicker .ant-picker-suffix svg{
+    fill: #ff993b;
+  }
+
+/* Chỉnh màu cho nút "Lọc" */
+.custom__modal .ant-btn-primary {
+    background-color: #ffffff; /* Thay đổi màu nền */
+    border-color: #ff993b; /* Thay đổi màu viền */
+    color: #ff993b; /* Thay đổi màu chữ */
+  }
+  
+  /* Chỉnh màu cho nút "Hủy" */
+  .custom__modal .ant-btn-default {
+    background-color: #ffffff; /* Thay đổi màu nền */
+    border-color: #ff993b; /* Thay đổi màu viền */
+    color: #ff993b; /* Thay đổi màu chữ */
+  }
+
+  .ant-modal-footer {
+    display: flex;
+    justify-content: center;
+  }
+  
+  .ant-modal-footer .ant-btn + .ant-btn {
+    margin-left: 8px;
+  }

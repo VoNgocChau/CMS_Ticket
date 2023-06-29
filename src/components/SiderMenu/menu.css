@@ -3,3 +3,13 @@
     background-color: #ffb800;
 }
 
+.menu {
+    min-height: 100vh;
+ background-color: #f9f6f4;
+}
+
+
+.menu .ant-menu-item-icon {
+    margin-right: 8px; /* Khoảng cách từ biểu tượng đến nhãn */
+    line-height: 40px;
+  }

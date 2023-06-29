@@ -1,0 +1,21 @@
+.header {
+    background-color: #f9f6f4;
+}
+
+.size__icon {
+    font-size: 24px;
+    margin: 0 10px;
+}
+
+/* :where(.css-dev-only-do-not-override-12upa3x).ant-layout-header {
+    height: 64px;
+    padding-inline: 50px;
+    color: rgba(0, 0, 0, 0.88);
+    line-height: 64px;
+  
+} */
+
+.avatar__style {
+    margin-bottom: 10px;
+    margin-left: 15px;
+}
