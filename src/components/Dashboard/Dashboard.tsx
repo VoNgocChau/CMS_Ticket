@@ -1,21 +1,39 @@
-import { Card, Progress } from "antd";
-import './dashboard.css'
+import { Card } from "antd";
+import "./dashboard.css";
+import Chart, { ChartData, ChartTypeRegistry } from "chart.js/auto";
+import { useEffect, useRef } from "react";
 
-const Dashboard = () => {
-  const data1 = 60;
-  const data2 = 40;
+interface Props {
+  data:
+    | ChartData<keyof ChartTypeRegistry, Chart.ChartPoint[], string>
+    | undefined;
+}
+const Dashboard: React.FC<Props> = ({ data }) => {
+  const chartRef = useRef<HTMLCanvasElement>(null);
+
+  useEffect(() => {
+    if (chartRef.current) {
+      const ctx = chartRef.current.getContext("2d");
+      if (ctx && data) {
+        new Chart(ctx, {
+          type: "line", // Thay đổi type thành 'line' để tạo line chart
+          data: data,
+          options: {
+            // Cấu hình tùy chọn biểu đồ
+          },
+        });
+      }
+    }
+  }, [data]);
   return (
-    
     <div>
       <Card className="card__style">
         <section>
           <h1>Thống kê</h1>
-          this is chart 
         </section>
 
         <div>
-          <Progress type="circle" percent={data1}  format={() => `${data1}%`} />
-          <Progress type="circle" percent={data2}  format={() => `${data2}%`} />
+          <canvas ref={chartRef}></canvas>
         </div>
       </Card>
     </div>

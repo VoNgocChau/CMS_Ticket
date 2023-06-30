@@ -9,6 +9,24 @@ import TicketReconci from "./components/TicketReconciliation/TicketReconci";
 import ListTicket from "./components/ListTicket/ListTicket";
 
 function App() {
+  const chartData = {
+    labels: ['January', 'February', 'March', 'April', 'May', 'June'],
+    datasets: [
+      {
+        label: 'Sales',
+        data: [
+          { x: 0, y: 120 },
+          { x: 1, y: 150 },
+          { x: 2, y: 180 },
+          { x: 3, y: 200 },
+          { x: 4, y: 220 },
+          { x: 5, y: 250 },
+        ],
+        borderColor: 'rgba(255, 99, 132, 1)',
+        borderWidth: 2,
+      },
+    ],
+  };
   return (
     <BrowserRouter>
       <Layout style={{ minHeight: "100vh" }}>
@@ -17,8 +35,8 @@ function App() {
           <HeaderComponents/>
           <Layout.Content className="content">
             <Routes>
-              <Route path="/" element={<Dashboard />} />
-              <Route path="/dashboard" element={<Dashboard />} />
+              <Route path="/" element={<Dashboard data={chartData}/>} />
+              <Route path="/dashboard" element={<Dashboard data={chartData}/>} />
               <Route path="/manage_ticket" element={<ManageTicket />} />
               <Route path="/ticket_reconciliation" element={<TicketReconci />} />
               <Route path="/services" element={<ListTicket/>} />

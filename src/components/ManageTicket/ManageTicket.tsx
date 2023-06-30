@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Badge,
   Button,
@@ -96,13 +96,6 @@ const ManageTicket = () => {
     dispatch(fetchTicketData());
   }, [dispatch]);
 
-  const rowClassName = (record: Ticket, index: number): string => {
-    if (index % 2 === 1) {
-      return "table-row-striped";
-    }
-    return "";
-  };
-
   const [showModal, setShowModal] = useState(false);
 
   const handleShowModal = () => {
@@ -110,8 +103,6 @@ const ManageTicket = () => {
   };
 
   const handleFilterSubmit = () => {
-    // Perform filtering logic based on the selected options
-    // Close the filter modal
     setShowModal(false);
   };
 
@@ -149,7 +140,6 @@ const ManageTicket = () => {
     const workbook = new ExcelJS.Workbook();
     const worksheet = workbook.addWorksheet("Sheet 1");
 
-    // Create header row
     const headerRow = worksheet.getRow(1);
     headerRow.font = { bold: true };
     headerRow.values = [
@@ -162,7 +152,6 @@ const ManageTicket = () => {
       "Cổng check-in",
     ];
 
-    // Set column widths
     worksheet.getColumn("A").width = 10;
     worksheet.getColumn("B").width = 15;
     worksheet.getColumn("C").width = 10;
@@ -171,7 +160,6 @@ const ManageTicket = () => {
     worksheet.getColumn("F").width = 15;
     worksheet.getColumn("G").width = 15;
 
-    // Set data values for each cell in the worksheet
     for (let i = 0; i < data.length; i++) {
       const rowData = data[i];
       const row = worksheet.getRow(i + 2);
@@ -185,9 +173,7 @@ const ManageTicket = () => {
       row.getCell(7).value = rowData.checkinGate;
     }
 
-    // Customize workbook and cells in the worksheet
     worksheet.eachRow((row, rowNumber) => {
-      // Apply alternating background color to rows
       if (rowNumber % 2 === 0) {
         row.fill = {
           type: "pattern",
@@ -197,13 +183,16 @@ const ManageTicket = () => {
       }
     });
 
-    // Export Excel file
     try {
       const buffer = await workbook.xlsx.writeBuffer();
       saveAs(new Blob([buffer]), `${filename}.xlsx`);
     } catch (error) {
       console.error("Error exporting to Excel:", error);
     }
+  };
+
+  const rowClassName = (record: Ticket, index: number): string => {
+    return index % 2 === 1 ? "table-row-striped" : "";
   };
 
   return (
@@ -268,7 +257,7 @@ const ManageTicket = () => {
                   </Form.Item>
                 </div>
               </Form>
-              {/* Add your filter form elements here */}
+
               <Form layout="vertical">
                 <Form.Item label="Tình trạng sử dụng">
                   <Radio.Group
