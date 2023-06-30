@@ -1,7 +1,8 @@
 import { EditOutlined } from "@ant-design/icons";
-import { Button, Card, Input, Modal, Table } from "antd";
+import { Badge, Button, Card, Checkbox, Col, DatePicker, Form, Input, Modal, Row, Select, Space, Table, TimePicker } from "antd";
 import { ColumnsType } from "antd/es/table";
 import {useState} from 'react'
+import './style.css'
 
 interface DataType {
   key: React.Key;
@@ -89,7 +90,63 @@ const ListTicket = () => {
             <Button>Xuất file (.csv)</Button>
             <Button onClick={() => setShowModal(true)}>Thêm gói vé</Button>
 
-            <Modal visible={showModal}></Modal>
+            <Modal visible={showModal} width={600} okText="Lưu" cancelText="Hủy" className="custom__modal" onCancel={() => setShowModal(false)}>
+              <div className="d-flex justify-content-center">Thêm gói vé</div>
+              <Row>
+                <Form layout="vertical">
+                  <Form.Item label = "Tên gói vé">
+                    <Input placeholder="Nhập tên gói vé" className="input__package"/>
+                  </Form.Item>
+                </Form>
+              </Row>
+              <Row>
+                <Col>
+                  <Form layout="vertical">
+                    <Form.Item label = "Ngày áp dụng">
+                      <Space>
+                      <DatePicker placeholder="dd/mm/yy" format={'DD/MM/YYYY'}  className="picker_style"/>
+                      <TimePicker placeholder="hh/mm/ss" className="picker_style"/>
+                      </Space>
+                    </Form.Item>
+                  </Form>
+                </Col>
+                <Col className="ms-3">
+                  <Form layout="vertical">
+                    <Form.Item label = "Ngày hết hạn">
+                      <Space>
+                      <DatePicker placeholder="dd/mm/yy" format={'DD/MM/YYYY'} className="picker_style"/>
+                      <TimePicker placeholder="hh/mm/ss" className="picker_style"/>
+                      </Space>
+                    </Form.Item>
+                  </Form>
+                </Col>
+              </Row>
+              <Row>
+                <Form layout="vertical">
+                  <Form.Item label ="Giá vé áp dụng">
+                    <Checkbox>
+                      Vé lẻ (vnđ/vé) với giá <Input className="w-25" placeholder="Giá vé"/> / vé
+                    </Checkbox>
+                    <Checkbox className="mt-3">
+                      Combo vé với giá <Input className="w-25" placeholder="Giá vé"/> / <Input className="w-25" placeholder="Giá vé"/> / vé
+                    </Checkbox>
+                  </Form.Item>
+                </Form>
+              </Row>
+              <Row>
+                <Form layout="vertical">
+                  <Form.Item label="Tình trạng">
+                    <Select className="custom__select">
+                      <Select.Option>Đang hoạt động</Select.Option>
+                    </Select>
+                  </Form.Item>
+                  <Form.Item>
+                    <span className="dot__custom">*</span>
+                    <span className="text__custom">Là thông tin bắt buộc</span>
+                  </Form.Item>
+                </Form>
+              </Row>
+            </Modal>
           </div>
         </div>
         <Table columns={columns} dataSource={data} />

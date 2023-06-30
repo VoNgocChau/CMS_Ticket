@@ -1,0 +1,44 @@
+.input__package {
+  width: 300px;
+}
+
+.picker_style {
+  width: 130px !important;
+}
+
+.picker_style .ant-picker-suffix svg {
+  fill: #ff993b;
+}
+
+.dot__custom {
+  color: #fd5959;
+  margin-right: 5px;
+}
+.text__custom {
+  color: var(--text, #1e0d03);
+  font-size: 12px;
+  font-family: Montserrat;
+  font-style: italic;
+  font-weight: 400;
+  line-height: normal;
+}
+
+.custom__select .ant-select-selector .ant-select-selection-item i {
+  color: #ff993b;
+}
+
+.custom__modal .ant-btn-primary {
+  width: 100px;
+  background-color: #ff993b; /* Thay đổi màu nền */
+  border-color: #ff993b; /* Thay đổi màu viền */
+  color: #ffffff; /* Thay đổi màu chữ */
+}
+
+/* Chỉnh màu cho nút "Hủy" */
+.custom__modal .ant-btn-default {
+  width: 100px;
+
+  background-color: #ffffff; /* Thay đổi màu nền */
+  border-color: #ff993b; /* Thay đổi màu viền */
+  color: #ff993b; /* Thay đổi màu chữ */
+}

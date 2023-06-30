@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   Badge,
   Button,
@@ -15,30 +15,23 @@ import {
   Tag,
 } from "antd";
 import "./ticket.css";
-import { ColumnsType } from "antd/es/table";
 import { FilterOutlined } from "@ant-design/icons";
 import { CheckboxChangeEvent } from "antd/es/checkbox";
 import { CheckboxValueType } from "antd/es/checkbox/Group";
-
-interface DataType {
-  key: React.Key;
-  bookingCode: string;
-  numberTicket: number;
-  usageStatus: string;
-  dateOfUse: string;
-  dateOfIssue: string;
-  checkinGate: string;
-}
+import { useAppDispatch, useAppSelector } from "../../redux/store";
+import { Ticket, fetchTicketData } from "../../firebase/ticketSlice";
+import ExcelJS from "exceljs";
+import { saveAs } from "file-saver";
 
 interface CheckboxOption {
   label: string;
   value: CheckboxValueType;
 }
 
-const columns: ColumnsType<DataType> = [
+const columns = [
   {
     title: "STT",
-    render: (text, record, index) => `${index + 1}`,
+    dataIndex: "key",
   },
   {
     title: "Booking Code",
@@ -46,7 +39,7 @@ const columns: ColumnsType<DataType> = [
   },
   {
     title: "Số vé",
-    dataIndex: "numberTicket",
+    dataIndex: "numTicket",
   },
   {
     title: "Tình trạng sử dụng",
@@ -57,11 +50,11 @@ const columns: ColumnsType<DataType> = [
 
       switch (usageStatus) {
         case "Đã sử dụng":
-          tagColor = "green";
+          tagColor = "blue";
           badgeStatus = "Đã sử dụng";
           break;
         case "Chưa sử dụng":
-          tagColor = "blue";
+          tagColor = "green";
           badgeStatus = "Chưa sử dụng";
           break;
         case "Hết hạn":
@@ -83,58 +76,27 @@ const columns: ColumnsType<DataType> = [
   },
   {
     title: "Ngày sử dụng",
-    dataIndex: "dateOfUse",
+    dataIndex: "dateUsage",
   },
   {
     title: "Ngày xuất vé",
-    dataIndex: "dateOfIssue",
+    dataIndex: "dateIssue",
   },
   {
     title: "Cổng check-in",
     dataIndex: "checkinGate",
   },
 ];
-const data: DataType[] = [
-  {
-    key: "1",
-    bookingCode: "ALJLFA",
-    numberTicket: 14719841,
-    usageStatus: "Đã sử dụng",
-    dateOfUse: "25/10/2003",
-    dateOfIssue: "29/06/2023",
-    checkinGate: "Cổng 1",
-  },
-  {
-    key: "2",
-    bookingCode: "ALJLFA",
-    numberTicket: 14719841,
-    usageStatus: "Chưa sử dụng",
-    dateOfUse: "25/10/2003",
-    dateOfIssue: "29/06/2023",
-    checkinGate: "Cổng 1",
-  },
-  {
-    key: "3",
-    bookingCode: "ALJLFA",
-    numberTicket: 14719841,
-    usageStatus: "Hết hạn",
-    dateOfUse: "25/10/2003",
-    dateOfIssue: "29/06/2023",
-    checkinGate: "Cổng 1",
-  },
-  {
-    key: "4",
-    bookingCode: "ALJLFA",
-    numberTicket: 14719841,
-    usageStatus: "Đã sử dụng",
-    dateOfUse: "25/10/2003",
-    dateOfIssue: "29/06/2023",
-    checkinGate: "Cổng 1",
-  },
-];
 
 const ManageTicket = () => {
-  const rowClassName = (record: DataType, index: number): string => {
+  const dispatch = useAppDispatch();
+  const data = useAppSelector((state) => state.tickets.tickets);
+
+  useEffect(() => {
+    dispatch(fetchTicketData());
+  }, [dispatch]);
+
+  const rowClassName = (record: Ticket, index: number): string => {
     if (index % 2 === 1) {
       return "table-row-striped";
     }
@@ -157,7 +119,6 @@ const ManageTicket = () => {
     console.log(date, dateString);
   };
 
-  //Checkbox
   const [checkedList, setCheckedList] = useState<CheckboxValueType[]>([]);
   const [checkAll, setCheckAll] = useState<boolean>(false);
 
@@ -183,6 +144,68 @@ const ManageTicket = () => {
   const isCheckAll = checkedList.length === checkboxOptions.length;
   const isIndeterminate =
     checkedList.length > 0 && checkedList.length < checkboxOptions.length;
+
+  const exportToExcel = async (data: any, filename: string) => {
+    const workbook = new ExcelJS.Workbook();
+    const worksheet = workbook.addWorksheet("Sheet 1");
+
+    // Create header row
+    const headerRow = worksheet.getRow(1);
+    headerRow.font = { bold: true };
+    headerRow.values = [
+      "STT",
+      "Booking Code",
+      "Số vé",
+      "Tình trạng sử dụng",
+      "Ngày sử dụng",
+      "Ngày xuất vé",
+      "Cổng check-in",
+    ];
+
+    // Set column widths
+    worksheet.getColumn("A").width = 10;
+    worksheet.getColumn("B").width = 15;
+    worksheet.getColumn("C").width = 10;
+    worksheet.getColumn("D").width = 15;
+    worksheet.getColumn("E").width = 15;
+    worksheet.getColumn("F").width = 15;
+    worksheet.getColumn("G").width = 15;
+
+    // Set data values for each cell in the worksheet
+    for (let i = 0; i < data.length; i++) {
+      const rowData = data[i];
+      const row = worksheet.getRow(i + 2);
+
+      row.getCell(1).value = rowData.key;
+      row.getCell(2).value = rowData.bookingCode;
+      row.getCell(3).value = rowData.numTicket;
+      row.getCell(4).value = rowData.usageStatus;
+      row.getCell(5).value = rowData.dateUsage;
+      row.getCell(6).value = rowData.dateIssue;
+      row.getCell(7).value = rowData.checkinGate;
+    }
+
+    // Customize workbook and cells in the worksheet
+    worksheet.eachRow((row, rowNumber) => {
+      // Apply alternating background color to rows
+      if (rowNumber % 2 === 0) {
+        row.fill = {
+          type: "pattern",
+          pattern: "solid",
+          fgColor: { argb: "EFEFEF" },
+        };
+      }
+    });
+
+    // Export Excel file
+    try {
+      const buffer = await workbook.xlsx.writeBuffer();
+      saveAs(new Blob([buffer]), `${filename}.xlsx`);
+    } catch (error) {
+      console.error("Error exporting to Excel:", error);
+    }
+  };
+
   return (
     <div>
       <Card className="card__style">
@@ -206,7 +229,12 @@ const ManageTicket = () => {
               >
                 Lọc vé
               </Button>
-              <Button className="btn__style">Xuất file(.csv)</Button>
+              <Button
+                className="btn__style"
+                onClick={() => exportToExcel(data, "data")}
+              >
+                Xuất file(.xlsx)
+              </Button>
             </Space>
             <Modal
               visible={showModal}
