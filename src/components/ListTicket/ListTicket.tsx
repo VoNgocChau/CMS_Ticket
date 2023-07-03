@@ -20,20 +20,27 @@ import { useState, useEffect } from "react";
 import "./style.css";
 import { useAppDispatch, useAppSelector } from "../../redux/store";
 import { fetchDataPackage } from "../../redux/features/listPackageSlice";
-import moment from "moment";
+import moment, { Moment } from "moment";
+import firebase from "firebase/compat/app";
+import "firebase/firestore";
+import { firestore } from "../../firebase/config";
+interface Package {
+  codePackage: string;
+  namePackage: string;
+  startDate: firebase.firestore.Timestamp | null;
+  endDate: firebase.firestore.Timestamp | null;
+  priceTicket: number;
+  priceCombo: number;
+  status: boolean;
+}
 
 const ListTicket = () => {
   const [showModal, setShowModal] = useState(false);
   const dispatch = useAppDispatch();
   const data = useAppSelector((state) => state.packages.packages);
-  
- 
-
   useEffect(() => {
     dispatch(fetchDataPackage());
   }, [dispatch]);
-
-  
 
   const columns = [
     {
@@ -88,11 +95,7 @@ const ListTicket = () => {
       title: "Actions",
       dataIndex: "",
       key: "actions",
-      render: () => (
-        <Button icon={<EditOutlined />} >
-          Cập nhật
-        </Button>
-      ),
+      render: () => <Button icon={<EditOutlined />}>Cập nhật</Button>,
     },
   ];
 
@@ -103,7 +106,10 @@ const ListTicket = () => {
           <h1>Danh sách gói vé</h1>
         </div>
         <div style={{ display: "flex", justifyContent: "space-between" }}>
-          <Input.Search placeholder="Tìm bằng số vé" style={{ width: "350px" }} />
+          <Input.Search
+            placeholder="Tìm bằng số vé"
+            style={{ width: "350px" }}
+          />
           <div>
             <Button>Xuất file (.csv)</Button>
             <Button onClick={() => setShowModal(true)}>Thêm gói vé</Button>
@@ -118,16 +124,46 @@ const ListTicket = () => {
             >
               <div className="d-flex justify-content-center">Thêm gói vé</div>
               <Row>
-                <Form  layout="vertical">
-                  <Form.Item label="Tên gói vé" name="packageName" rules={[{ required: true, message: "Vui lòng nhập tên gói vé!" }]}>
-                    <Input placeholder="Nhập tên gói vé" className="input__package" />
+                <Form layout="vertical">
+                  <Form.Item
+                    label="Mã gói vé"
+                    name="packageName"
+                    rules={[
+                      { required: true, message: "Vui lòng nhập mã gói vé!" },
+                    ]}
+                  >
+                    <Input
+                      placeholder="Nhập tên gói vé"
+                      className="input__package"
+                    />
+                  </Form.Item>
+                  <Form.Item
+                    label="Tên gói vé"
+                    name="packageName"
+                    rules={[
+                      { required: true, message: "Vui lòng nhập tên gói vé!" },
+                    ]}
+                  >
+                    <Input
+                      placeholder="Nhập tên gói vé"
+                      className="input__package"
+                    />
                   </Form.Item>
                 </Form>
               </Row>
               <Row>
                 <Col>
                   <Form layout="vertical">
-                    <Form.Item label="Ngày áp dụng" name="dateRange" rules={[{ required: true, message: "Vui lòng chọn ngày áp dụng!" }]}>
+                    <Form.Item
+                      label="Ngày áp dụng"
+                      name="dateRange"
+                      rules={[
+                        {
+                          required: true,
+                          message: "Vui lòng chọn ngày áp dụng!",
+                        },
+                      ]}
+                    >
                       <Space>
                         <DatePicker
                           placeholder="dd/mm/yy"
@@ -144,7 +180,16 @@ const ListTicket = () => {
                 </Col>
                 <Col className="ms-3">
                   <Form layout="vertical">
-                    <Form.Item label="Ngày hết hạn" name="dateRange" rules={[{ required: true, message: "Vui lòng chọn ngày hết hạn!" }]}>
+                    <Form.Item
+                      label="Ngày hết hạn"
+                      name="dateRange"
+                      rules={[
+                        {
+                          required: true,
+                          message: "Vui lòng chọn ngày hết hạn!",
+                        },
+                      ]}
+                    >
                       <Space>
                         <DatePicker
                           placeholder="dd/mm/yy"
@@ -162,11 +207,19 @@ const ListTicket = () => {
               </Row>
               <Row>
                 <Form layout="vertical">
-                  <Form.Item label="Giá vé áp dụng" name="priceTicket" rules={[{ required: true, message: "Vui lòng nhập giá vé áp dụng!" }]}>
+                  <Form.Item
+                    label="Giá vé áp dụng"
+                    name="priceTicket"
+                    rules={[
+                      {
+                        required: true,
+                        message: "Vui lòng nhập giá vé áp dụng!",
+                      },
+                    ]}
+                  >
                     <Checkbox>
                       Vé lẻ (vnđ/vé) với giá{" "}
-                      <Input className="w-25" placeholder="Giá vé" />
-                      / vé
+                      <Input className="w-25" placeholder="Giá vé" />/ vé
                     </Checkbox>
                     <Checkbox className="mt-3">
                       Combo vé với giá{" "}
@@ -178,7 +231,13 @@ const ListTicket = () => {
               </Row>
               <Row>
                 <Form layout="vertical">
-                  <Form.Item label="Tình trạng" name="status" rules={[{ required: true, message: "Vui lòng chọn tình trạng!" }]}>
+                  <Form.Item
+                    label="Tình trạng"
+                    name="status"
+                    rules={[
+                      { required: true, message: "Vui lòng chọn tình trạng!" },
+                    ]}
+                  >
                     <Select className="custom__select">
                       <Select.Option value={true}>Đang hoạt động</Select.Option>
                     </Select>

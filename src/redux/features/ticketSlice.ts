@@ -5,12 +5,12 @@ export interface Ticket {
     id: string;
     key: number;
     bookingCode: string;
-    numberTicket: number;
+    numberTicket: string;
     usageStatus: string;
     dateUsage: string;
     dateIssue: string;
     checkinGate: string;
-    checkboxValue: number;
+    checkboxValue?: number;
 }
 
 interface TicketState {

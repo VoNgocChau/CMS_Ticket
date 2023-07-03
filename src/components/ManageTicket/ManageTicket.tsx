@@ -5,7 +5,6 @@ import {
   Card,
   Checkbox,
   DatePicker,
-  DatePickerProps,
   Form,
   Input,
   Modal,
@@ -16,17 +15,9 @@ import {
 } from "antd";
 import "./ticket.css";
 import { FilterOutlined } from "@ant-design/icons";
-import { CheckboxChangeEvent } from "antd/es/checkbox";
-import { CheckboxValueType } from "antd/es/checkbox/Group";
 import { useAppDispatch, useAppSelector } from "../../redux/store";
 import { Ticket, fetchTicketData } from "../../redux/features/ticketSlice";
-import ExcelJS from "exceljs";
-import { saveAs } from "file-saver";
-
-interface CheckboxOption {
-  label: string;
-  value: CheckboxValueType;
-}
+import { exportToExcel } from "./exportExcel";
 
 const columns = [
   {
@@ -90,7 +81,8 @@ const columns = [
 
 const ManageTicket = () => {
   const dispatch = useAppDispatch();
-  const data = useAppSelector((state) => state.tickets.tickets);
+  const data = useAppSelector((state) => state.tickets.tickets) as Ticket[];
+  const [searchText, setSearchText] = useState("");
 
   useEffect(() => {
     dispatch(fetchTicketData());
@@ -106,93 +98,23 @@ const ManageTicket = () => {
     setShowModal(false);
   };
 
-  const onChange: DatePickerProps["onChange"] = (date, dateString) => {
-    console.log(date, dateString);
-  };
-
-  const [checkedList, setCheckedList] = useState<CheckboxValueType[]>([]);
-  const [checkAll, setCheckAll] = useState<boolean>(false);
-
-  const handleCheckboxChange = (checkedValues: CheckboxValueType[]) => {
-    setCheckedList(checkedValues as number[]);
-    setCheckAll(checkedValues.length === checkboxOptions.length);
-  };
-
-  const handleCheckAllChange = (e: CheckboxChangeEvent) => {
-    const allValues = checkboxOptions.map((option) => option.value);
-    setCheckedList(e.target.checked ? allValues : []);
-    setCheckAll(e.target.checked);
-  };
-
-  const checkboxOptions: CheckboxOption[] = [
-    { label: "Cống 1", value: 2 },
-    { label: "Cổng 2", value: 3 },
-    { label: "Cổng 3", value: 4 },
-    { label: "Cổng 4", value: 5 },
-    { label: "Cổng 5", value: 6 },
-  ];
-
-  const isCheckAll = checkedList.length === checkboxOptions.length;
-  const isIndeterminate =
-    checkedList.length > 0 && checkedList.length < checkboxOptions.length;
-
-  const exportToExcel = async (data: any, filename: string) => {
-    const workbook = new ExcelJS.Workbook();
-    const worksheet = workbook.addWorksheet("Sheet 1");
-
-    const headerRow = worksheet.getRow(1);
-    headerRow.font = { bold: true };
-    headerRow.values = [
-      "STT",
-      "Booking Code",
-      "Số vé",
-      "Tình trạng sử dụng",
-      "Ngày sử dụng",
-      "Ngày xuất vé",
-      "Cổng check-in",
-    ];
-
-    worksheet.getColumn("A").width = 10;
-    worksheet.getColumn("B").width = 15;
-    worksheet.getColumn("C").width = 10;
-    worksheet.getColumn("D").width = 15;
-    worksheet.getColumn("E").width = 15;
-    worksheet.getColumn("F").width = 15;
-    worksheet.getColumn("G").width = 15;
-
-    for (let i = 0; i < data.length; i++) {
-      const rowData = data[i];
-      const row = worksheet.getRow(i + 2);
-
-      row.getCell(1).value = rowData.key;
-      row.getCell(2).value = rowData.bookingCode;
-      row.getCell(3).value = rowData.numTicket;
-      row.getCell(4).value = rowData.usageStatus;
-      row.getCell(5).value = rowData.dateUsage;
-      row.getCell(6).value = rowData.dateIssue;
-      row.getCell(7).value = rowData.checkinGate;
-    }
-
-    worksheet.eachRow((row, rowNumber) => {
-      if (rowNumber % 2 === 0) {
-        row.fill = {
-          type: "pattern",
-          pattern: "solid",
-          fgColor: { argb: "EFEFEF" },
-        };
-      }
-    });
-
-    try {
-      const buffer = await workbook.xlsx.writeBuffer();
-      saveAs(new Blob([buffer]), `${filename}.xlsx`);
-    } catch (error) {
-      console.error("Error exporting to Excel:", error);
-    }
-  };
-
   const rowClassName = (record: Ticket, index: number): string => {
     return index % 2 === 1 ? "table-row-striped" : "";
+  };
+
+  // search
+  const searchDevices = () => {
+    let filteredData = data;
+
+    if (searchText !== "") {
+      filteredData = filteredData.filter(
+        (ticket) =>
+          ticket.bookingCode &&
+          ticket.bookingCode.toLowerCase().includes(searchText.toLowerCase())
+      );
+    }
+
+    return filteredData;
   };
 
   return (
@@ -207,7 +129,9 @@ const ManageTicket = () => {
         >
           <Input.Search
             style={{ width: "300px" }}
-            placeholder="Tìm bằng số vé"
+            placeholder="Tìm kiếm theo số vé"
+            value={searchText}
+            onChange={(e) => setSearchText(e.target.value)}
           />
           <div>
             <Space>
@@ -241,7 +165,6 @@ const ManageTicket = () => {
                 <div>
                   <Form.Item label="Từ ngày">
                     <DatePicker
-                      onChange={onChange}
                       className="custom__datepicker"
                       format="DD/MM/YYYY"
                     />
@@ -250,7 +173,6 @@ const ManageTicket = () => {
                 <div>
                   <Form.Item label="Đến ngày">
                     <DatePicker
-                      onChange={onChange}
                       className="custom__datepicker"
                       format="DD/MM/YYYY"
                     />
@@ -273,28 +195,10 @@ const ManageTicket = () => {
 
               <Form layout="vertical">
                 <Form.Item label="Cổng Check - in">
-                  <Checkbox
-                    indeterminate={isIndeterminate}
-                    onChange={handleCheckAllChange}
-                    checked={isCheckAll}
-                  >
-                    Tất cả
-                  </Checkbox>
+                  <Checkbox>Tất cả</Checkbox>
                   <Checkbox.Group
                     style={{ display: "flex", justifyContent: "space-between" }}
-                    value={checkedList}
-                    onChange={handleCheckboxChange}
-                  >
-                    {checkboxOptions.map((option) => (
-                      <Checkbox
-                        key={option.value.toString()}
-                        value={option.value}
-                        disabled={isCheckAll}
-                      >
-                        {option.label}
-                      </Checkbox>
-                    ))}
-                  </Checkbox.Group>
+                  ></Checkbox.Group>
                 </Form.Item>
               </Form>
             </Modal>
@@ -303,7 +207,8 @@ const ManageTicket = () => {
 
         <Table
           columns={columns}
-          dataSource={data}
+          dataSource={searchDevices()}
+          bordered
           size="middle"
           pagination={{ position: ["bottomCenter"] }}
           rowClassName={rowClassName}
