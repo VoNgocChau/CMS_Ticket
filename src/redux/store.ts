@@ -1,10 +1,14 @@
 import {configureStore} from '@reduxjs/toolkit'
 import { TypedUseSelectorHook, useDispatch, useSelector } from 'react-redux';
-import ticketSlice from '../firebase/ticketSlice';
+import ticketSlice from './features/ticketSlice';
+
+import packageSlice from './features/listPackageSlice'
+
 
 const store = configureStore({
     reducer: {
-        tickets: ticketSlice
+        tickets: ticketSlice,
+        packages: packageSlice
     }
 })
 

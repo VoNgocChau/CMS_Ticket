@@ -19,7 +19,7 @@ import { FilterOutlined } from "@ant-design/icons";
 import { CheckboxChangeEvent } from "antd/es/checkbox";
 import { CheckboxValueType } from "antd/es/checkbox/Group";
 import { useAppDispatch, useAppSelector } from "../../redux/store";
-import { Ticket, fetchTicketData } from "../../firebase/ticketSlice";
+import { Ticket, fetchTicketData } from "../../redux/features/ticketSlice";
 import ExcelJS from "exceljs";
 import { saveAs } from "file-saver";
 
