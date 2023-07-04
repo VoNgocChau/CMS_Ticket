@@ -1,4 +1,4 @@
-import { createAsyncThunk, createSlice, PayloadAction } from '@reduxjs/toolkit'
+import {   createAsyncThunk, createSlice, PayloadAction } from '@reduxjs/toolkit'
 
 import { firestore } from '../../firebase/config'
 import firebase from '../../firebase/config';

@@ -10,7 +10,7 @@ export interface Ticket {
     dateUsage: string;
     dateIssue: string;
     checkinGate: string;
-    checkboxValue?: number;
+    checkboxValue?: number; 
 }
 
 interface TicketState {

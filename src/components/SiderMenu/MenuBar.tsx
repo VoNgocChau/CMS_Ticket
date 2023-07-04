@@ -64,7 +64,7 @@ const items: MenuItem[] = [
 ];
 const MenuBar = () => {
   return (
-    <Sider theme="light">
+    <Sider theme="light" className="siderbar">
       <div className="menu">
         {/* start_logo */}
         <div

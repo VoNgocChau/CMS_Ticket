@@ -4,7 +4,7 @@
 }
 
 .menu {
-    min-height: 100vh;
+    min-height: 100%;
  background-color: #f9f6f4;
 }
 
@@ -16,4 +16,12 @@
 
 a { 
     text-decoration: none;
+}
+
+.siderbar {
+    flex: 0 0 200px;
+    max-width: 200px;
+    min-width: 200px;
+    width: 200px;
+    min-height: 100vh;
 }

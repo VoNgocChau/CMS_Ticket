@@ -3,12 +3,14 @@ import { TypedUseSelectorHook, useDispatch, useSelector } from 'react-redux';
 import ticketSlice from './features/ticketSlice';
 
 import packageSlice from './features/listPackageSlice'
+import reconciliation_ticketSlice from './reconciliation_ticketSlice';
 
 
 const store = configureStore({
     reducer: {
         tickets: ticketSlice,
-        packages: packageSlice
+        packages: packageSlice,
+        reconciliation: reconciliation_ticketSlice
     }
 })
 

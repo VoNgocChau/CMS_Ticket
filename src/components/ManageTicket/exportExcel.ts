@@ -1,6 +1,5 @@
 import ExcelJS from "exceljs";
 import { saveAs } from "file-saver";
-import { Ticket } from "../../redux/features/ticketSlice";
 
 
 export const exportToExcel = async (data: any, filename: string) => {

@@ -83,6 +83,9 @@ const ManageTicket = () => {
   const dispatch = useAppDispatch();
   const data = useAppSelector((state) => state.tickets.tickets) as Ticket[];
   const [searchText, setSearchText] = useState("");
+  const [fromDate, setFromDate] = useState<any>(null);
+  const [toDate, setToDate] = useState<any>(null);
+  const [usageStatus, setUsageStatus] = useState<string>("");
 
   useEffect(() => {
     dispatch(fetchTicketData());
@@ -95,6 +98,32 @@ const ManageTicket = () => {
   };
 
   const handleFilterSubmit = () => {
+    // Save the filtered data to state or perform other operations
+    let filteredTickets = data;
+
+    if(fromDate) {
+      const fromDateStr = fromDate.format("DD/MM/YYYY");
+      filteredTickets = filteredTickets.filter(
+        (ticket) => ticket.dateIssue === fromDateStr
+      )
+    }
+
+    if(toDate) {
+      const toDateStr = toDate.format("DD/MM/YYYY");
+      filteredTickets  = filteredTickets.filter(
+        (ticket) => ticket.dateIssue === toDateStr
+      )
+    }
+
+    if(usageStatus) {
+      filteredTickets = filteredTickets.filter(
+        (ticket) => ticket.usageStatus === usageStatus
+      )
+    }
+
+    // xu ly danh sach ve da loc 
+    console.log(filteredTickets)
+
     setShowModal(false);
   };
 
@@ -167,6 +196,8 @@ const ManageTicket = () => {
                     <DatePicker
                       className="custom__datepicker"
                       format="DD/MM/YYYY"
+                      value={fromDate}
+                      onChange={(date) => setFromDate(date)}
                     />
                   </Form.Item>
                 </div>
@@ -175,6 +206,8 @@ const ManageTicket = () => {
                     <DatePicker
                       className="custom__datepicker"
                       format="DD/MM/YYYY"
+                      value={toDate}
+                      onChange={(date) => setToDate(date)}
                     />
                   </Form.Item>
                 </div>
@@ -184,11 +217,13 @@ const ManageTicket = () => {
                 <Form.Item label="Tình trạng sử dụng">
                   <Radio.Group
                     style={{ display: "flex", justifyContent: "space-between" }}
+                    value={usageStatus}
+                    onChange={(e) => setUsageStatus(e.target.value)}
                   >
-                    <Radio value={1}>Tất cả</Radio>
-                    <Radio value={2}>Đã sử dụng</Radio>
-                    <Radio value={3}>Chưa sử dụng</Radio>
-                    <Radio value={4}>Hết hạn</Radio>
+                    <Radio value={null}>Tất cả</Radio>
+                    <Radio value="Đã sử dụng">Đã sử dụng</Radio>
+                    <Radio value="Chưa sử dụng">Chưa sử dụng</Radio>
+                    <Radio value="Hết hạn">Hết hạn</Radio>
                   </Radio.Group>
                 </Form.Item>
               </Form>

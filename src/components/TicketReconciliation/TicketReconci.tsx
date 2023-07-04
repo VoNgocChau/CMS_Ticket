@@ -1,19 +1,15 @@
-import Table, { ColumnsType } from "antd/es/table";
-import React from "react";
+import Table from "antd/es/table";
+import React,{useEffect} from "react";
 import "./style.css";
 import { Button, Card, DatePicker, Form, Input, Radio } from "antd";
-interface DataType {
-  key: React.Key;
-  numberTicket: number;
-  usageDate: string;
-  ticketTypeName: string;
-  checkinGate: string;
-}
+import { useAppDispatch, useAppSelector } from "../../redux/store";
+import { fetchDataReconciliation } from "../../redux/reconciliation_ticketSlice";
 
-const columns: ColumnsType<DataType> = [
+
+const columns = [
   {
     title: "STT",
-    render: (text, record, index) => `${index + 1}`,
+    dataIndex: "key",
   },
   {
     title: "Số vé",
@@ -21,29 +17,31 @@ const columns: ColumnsType<DataType> = [
   },
   {
     title: "Ngày sử dụng",
-    dataIndex: "numberTicket",
+    dataIndex: "dataUsage",
   },
   {
     title: "Tên loại vé",
-    dataIndex: "numberTicket",
+    dataIndex: "nameTicket",
   },
   {
     title: "Cổng check - in",
-    dataIndex: "numberTicket",
+    dataIndex: "checkinGate",
+  },
+  {
+    title: "",
+    dataIndex: "",
+    render: () => <i>Chưa đối soát</i>,
   },
 ];
 
-const data: DataType[] = [
-  {
-    key: 1,
-    numberTicket: 141291,
-    usageDate: "20/11/2018",
-    ticketTypeName: "vé cổng",
-    checkinGate: "cổng 1",
-  },
-];
 const TicketReconci = () => {
-  const rowClassName = (record: DataType, index: number): string => {
+  const dispatch = useAppDispatch();
+  const data = useAppSelector((state) => state.reconciliation.tickets);
+
+  useEffect(() => {
+    dispatch(fetchDataReconciliation())
+  }, [dispatch]);
+  const rowClassName = (record: any, index: number): string => {
     if (index % 2 === 1) {
       return "table-row-striped";
     }
@@ -53,7 +51,7 @@ const TicketReconci = () => {
     <div style={{ display: "flex" }}>
       <Card style={{ width: "1150px", height: "580px", margin: "0 30px" }}>
         <div>
-            <h1>Đối soát vé</h1>
+          <h1>Đối soát vé</h1>
         </div>
         <div
           style={{
@@ -76,31 +74,36 @@ const TicketReconci = () => {
           rowClassName={rowClassName}
         />
       </Card>
-        <Form layout="horizontal">
-      <Card style={{ width: "500px",height: '580px', margin: "0 20px" }}>
-            <h1>Lọc vé</h1>
-            <Form.Item label="Tình trạng đối soát">
-                <Radio.Group>
-                <Radio value={1}>Tất cả</Radio>
-                    <Radio value={2}>Đã đối soát</Radio>
-                    <Radio value={3}>Chưa đối soát</Radio>
-                </Radio.Group>
-            </Form.Item>
-            <Form.Item label="Loại vé">
-                <p style={{margin: '0 35%'}}>Vé cổng</p>
-            </Form.Item>
-            <Form.Item label="Từ ngày">
-                <DatePicker style={{margin: '0 35%'}}  format={"DD/MM/YYYY"}/>
-            </Form.Item>
-            <Form.Item label="Đến ngày">
-                <DatePicker style={{margin: '0 35%'}} format={"DD/MM/YYYY"}/>
-            </Form.Item>
-            <Form.Item style={{display: 'flex', justifyContent: 'center'}}>
-                <Button className="btn__loc">Lọc</Button>
-            </Form.Item>
-            
-      </Card>
-        </Form>
+      <Form layout="horizontal">
+        <Card style={{ width: "350px", height: "580px", margin: "0 10px" }}>
+          <h5>Lọc vé</h5>
+          <Form.Item label="Tình trạng đối soát">
+            <Radio.Group
+              style={{
+                display: "flex",
+                flexDirection: "column",
+                margin: "6px 5px ",
+              }}
+            >
+              <Radio value={1}>Tất cả</Radio>
+              <Radio value={2}>Đã đối soát</Radio>
+              <Radio value={3}>Chưa đối soát</Radio>
+            </Radio.Group>
+          </Form.Item>
+          <Form.Item label="Loại vé">
+            <p style={{ margin: "0 35%" }}>Vé cổng</p>
+          </Form.Item>
+          <Form.Item label="Từ ngày">
+            <DatePicker format={"DD/MM/YYYY"} />
+          </Form.Item>
+          <Form.Item label="Đến ngày">
+            <DatePicker format={"DD/MM/YYYY"} />
+          </Form.Item>
+          <Form.Item style={{ display: "flex", justifyContent: "center" }}>
+            <Button className="btn__loc">Lọc</Button>
+          </Form.Item>
+        </Card>
+      </Form>
     </div>
   );
 };
