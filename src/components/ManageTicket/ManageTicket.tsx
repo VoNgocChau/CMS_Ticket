@@ -18,8 +18,9 @@ import { FilterOutlined } from "@ant-design/icons";
 import { useAppDispatch, useAppSelector } from "../../redux/store";
 import { Ticket, fetchTicketData } from "../../redux/features/ticketSlice";
 import { exportToExcel } from "./exportExcel";
+import { fetchDataEvent } from "../../redux/features/eventSlice";
 
-const columns = [
+const familyPackageColumns = [
   {
     title: "STT",
     dataIndex: "key",
@@ -79,17 +80,90 @@ const columns = [
   },
 ];
 
+const eventPackageColumns = [
+  {
+    title: "STT",
+    dataIndex: "key",
+  },
+  {
+    title: "Booking Code",
+    dataIndex: "bookingCode",
+  },
+  {
+    title: "Số vé",
+    dataIndex: "numTicket",
+  },
+  {
+    title: "Tên sự kiện",
+    dataIndex: "nameEvent",
+  },
+  {
+    title: "Tình trạng sử dụng",
+    dataIndex: "usageStatus",
+    render: (usageStatus: string) => {
+      let tagColor = "";
+      let badgeStatus = "";
+
+      switch (usageStatus) {
+        case "Đã sử dụng":
+          tagColor = "blue";
+          badgeStatus = "Đã sử dụng";
+          break;
+        case "Chưa sử dụng":
+          tagColor = "green";
+          badgeStatus = "Chưa sử dụng";
+          break;
+        case "Hết hạn":
+          tagColor = "red";
+          badgeStatus = "Hết hạn sử dụng";
+          break;
+        default:
+          tagColor = "";
+          badgeStatus = "";
+          break;
+      }
+
+      return (
+        <Tag color={tagColor}>
+          <Badge color={tagColor} text={badgeStatus} />
+        </Tag>
+      );
+    },
+  },
+  {
+    title: "Ngày sử dụng",
+    dataIndex: "dateUsage",
+  },
+  {
+    title: "Ngày xuất vé",
+    dataIndex: "dateIssue",
+  },
+  {
+    title: "Cổng check-in",
+    dataIndex: "checkinGate",
+  },
+];
+
 const ManageTicket = () => {
   const dispatch = useAppDispatch();
-  const data = useAppSelector((state) => state.tickets.tickets) as Ticket[];
+  const data = useAppSelector((state) => state.tickets.tickets);
+  const eventData = useAppSelector((state) => state.events.events);
   const [searchText, setSearchText] = useState("");
   const [usageStatus, setUsageStatus] = useState<string>("");
+  const [showModal, setShowModal] = useState(false);
+  const [selectedPackage, setSelectedPackage] = useState<string | null>(null);
 
   useEffect(() => {
-    dispatch(fetchTicketData());
+    const fetchData = async () => {
+      await Promise.all([
+        dispatch(fetchTicketData()),
+        dispatch(fetchDataEvent()),
+      ]);
+    };
+    fetchData();
   }, [dispatch]);
 
-  const [showModal, setShowModal] = useState(false);
+ 
 
   const handleShowModal = () => {
     setShowModal(true);
@@ -118,9 +192,62 @@ const ManageTicket = () => {
     return filteredData;
   };
 
+  // render table
+  const renderTable = () => {
+    if (selectedPackage === "Gói gia đình") {
+      return (
+        <Table
+          columns={familyPackageColumns}
+          dataSource={searchDevices()}
+          rowClassName={rowClassName}
+          bordered
+          size="middle"
+          pagination={{ position: ["bottomCenter"] }}
+        />
+      );
+    }
+    if (selectedPackage === "Gói sự kiện") {
+      return (
+        <Table
+          columns={eventPackageColumns}
+          dataSource={eventData}
+          rowClassName={rowClassName}
+          bordered
+          size="middle"
+          pagination={{ position: ["bottomCenter"] }}
+        />
+      );
+    }
+    return (
+      <Table
+        columns={familyPackageColumns}
+        dataSource={searchDevices()}
+        rowClassName={rowClassName}
+        bordered
+        size="middle"
+        pagination={{ position: ["bottomCenter"] }}
+      />
+    );
+  };
+
+
   return (
     <div>
       <Card className="card__style">
+        <div>
+          <h3>Danh sách vé</h3>
+        </div>
+        <div>
+          <Button
+            type="text"
+            onClick={() => setSelectedPackage("Gói gia đình")}
+          >
+            Gói gia đình
+          </Button>
+          <Button type="text" onClick={() => setSelectedPackage("Gói sự kiện")}>
+            Gói sự kiện
+          </Button>
+        </div>
         <div
           style={{
             display: "flex",
@@ -208,14 +335,7 @@ const ManageTicket = () => {
           </div>
         </div>
 
-        <Table
-          columns={columns}
-          dataSource={searchDevices()}
-          bordered
-          size="middle"
-          pagination={{ position: ["bottomCenter"] }}
-          rowClassName={rowClassName}
-        />
+        {renderTable()}
       </Card>
     </div>
   );

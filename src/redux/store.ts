@@ -4,13 +4,15 @@ import ticketSlice from './features/ticketSlice';
 
 import packageSlice from './features/listPackageSlice'
 import reconciliation_ticketSlice from './reconciliation_ticketSlice';
+import eventSlice from './features/eventSlice';
 
 
 const store = configureStore({
     reducer: {
         tickets: ticketSlice,
         packages: packageSlice,
-        reconciliation: reconciliation_ticketSlice
+        reconciliation: reconciliation_ticketSlice,
+        events: eventSlice
     }
 })
 
