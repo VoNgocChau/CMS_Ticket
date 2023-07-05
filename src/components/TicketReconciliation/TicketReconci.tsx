@@ -1,10 +1,13 @@
 import Table from "antd/es/table";
-import React,{useEffect} from "react";
+import React, { useEffect, useState } from "react";
 import "./style.css";
 import { Button, Card, DatePicker, Form, Input, Radio } from "antd";
 import { useAppDispatch, useAppSelector } from "../../redux/store";
-import { fetchDataReconciliation } from "../../redux/reconciliation_ticketSlice";
-
+import {
+  ReconciliationTicket,
+  fetchDataReconciliation,
+  updateReconciliationData,
+} from "../../redux/reconciliation_ticketSlice";
 
 const columns = [
   {
@@ -29,24 +32,89 @@ const columns = [
   },
   {
     title: "",
-    dataIndex: "",
-    render: () => <i>Chưa đối soát</i>,
+    dataIndex: "status",
   },
 ];
 
 const TicketReconci = () => {
   const dispatch = useAppDispatch();
   const data = useAppSelector((state) => state.reconciliation.tickets);
+  const [filterStatus, setFilterStatus] = useState("all");
+  const [filteredDatas, setFilteredData] = useState<
+    ReconciliationTicket[] | undefined
+  >([]); // Dữ liệu đã lọc
+
+  const [searchText, setSearchText] = useState("")
+  useEffect(() => {
+    dispatch(fetchDataReconciliation());
+  }, [dispatch]);
 
   useEffect(() => {
-    dispatch(fetchDataReconciliation())
-  }, [dispatch]);
+    // Áp dụng điều kiện lọc khi filterStatus hoặc data thay đổi
+    if (data) {
+      const filtered = filterData(data, filterStatus);
+      setFilteredData(filtered);
+    }
+  }, [data, filterStatus]);
+
+  const filterData = (data: ReconciliationTicket[], filterStatus: string) => {
+    if (filterStatus === "all") {
+      return data;
+    } else if (filterStatus === "unreconciled") {
+      return data.filter((ticket) => ticket.status === filterStatus);
+    } else if (filterStatus === "Đã đối soát") {
+      return data.filter((ticket) => ticket.status === filterStatus);
+    }
+  };
+
+  const handleFilterSubmit = () => {
+    if (data) {
+      const filtered = filterData(data, filterStatus);
+      setFilteredData(filtered);
+    }
+  };
+
   const rowClassName = (record: any, index: number): string => {
     if (index % 2 === 1) {
       return "table-row-striped";
     }
     return "";
   };
+
+  // chot doi soat
+  const handleReconciliation = () => {
+    // lay danh sach chua doi soat
+    const unreconciledTickets = data.filter(
+      (ticket) => ticket.status === "Chưa đối soát"
+    );
+
+    // thay doi trang thai thanh da doi soat
+    const updatedTickets = unreconciledTickets.map((ticket) => ({
+      ...ticket,
+      status: "Đã đối soát",
+    }));
+    dispatch(updateReconciliationData(updatedTickets));
+  };
+
+  const handleFilterChange = (e: any) => {
+    setFilterStatus(e.target.value);
+  };
+
+  // search
+  const searchDevices = () => {
+    let searchData = filteredDatas;
+
+    if (searchText !== "") {
+      searchData = searchData?.filter(
+        (ticket) =>
+          ticket.numberTicket &&
+          ticket.numberTicket.toLowerCase().includes(searchText.toLowerCase())
+      );
+    }
+
+    return searchData;  
+  };
+
   return (
     <div style={{ display: "flex" }}>
       <Card style={{ width: "1150px", height: "580px", margin: "0 30px" }}>
@@ -63,12 +131,16 @@ const TicketReconci = () => {
           <Input.Search
             placeholder="Tìm bằng số vé"
             style={{ width: "300px" }}
+            value={searchText}
+            onChange={(e) => setSearchText(e.target.value)}
           />
-          <Button className="btn__custom">Chốt đối soát</Button>
+          <Button className="btn__custom" onClick={handleReconciliation}>
+            Chốt đối soát
+          </Button>
         </div>
         <Table
           columns={columns}
-          dataSource={data}
+          dataSource={searchDevices()}
           size="small"
           pagination={{ position: ["bottomCenter"] }}
           rowClassName={rowClassName}
@@ -84,10 +156,12 @@ const TicketReconci = () => {
                 flexDirection: "column",
                 margin: "6px 5px ",
               }}
+              onChange={handleFilterChange}
+              value={filterStatus}
             >
-              <Radio value={1}>Tất cả</Radio>
-              <Radio value={2}>Đã đối soát</Radio>
-              <Radio value={3}>Chưa đối soát</Radio>
+              <Radio value="all">Tất cả</Radio>
+              <Radio value="unreconciled">Chưa đối soát</Radio>
+              <Radio value="Đã đối soát">Đã đối soát</Radio>
             </Radio.Group>
           </Form.Item>
           <Form.Item label="Loại vé">
@@ -100,7 +174,9 @@ const TicketReconci = () => {
             <DatePicker format={"DD/MM/YYYY"} />
           </Form.Item>
           <Form.Item style={{ display: "flex", justifyContent: "center" }}>
-            <Button className="btn__loc">Lọc</Button>
+            <Button className="btn__loc" onClick={handleFilterSubmit}>
+              Lọc
+            </Button>
           </Form.Item>
         </Card>
       </Form>

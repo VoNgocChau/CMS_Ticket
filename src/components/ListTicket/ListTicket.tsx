@@ -21,23 +21,13 @@ import "./style.css";
 import { useAppDispatch, useAppSelector } from "../../redux/store";
 import { fetchDataPackage } from "../../redux/features/listPackageSlice";
 import moment, { Moment } from "moment";
-import firebase from "firebase/compat/app";
-import "firebase/firestore";
-import { firestore } from "../../firebase/config";
-interface Package {
-  codePackage: string;
-  namePackage: string;
-  startDate: firebase.firestore.Timestamp | null;
-  endDate: firebase.firestore.Timestamp | null;
-  priceTicket: number;
-  priceCombo: number;
-  status: boolean;
-}
+
 
 const ListTicket = () => {
   const [showModal, setShowModal] = useState(false);
   const dispatch = useAppDispatch();
   const data = useAppSelector((state) => state.packages.packages);
+  const [searchText, setSearchText] = useState("");
   useEffect(() => {
     dispatch(fetchDataPackage());
   }, [dispatch]);
@@ -99,20 +89,38 @@ const ListTicket = () => {
     },
   ];
 
+  // search
+  const searchDevices = () => {
+    let filteredData = data;
+
+    if (searchText !== "") {
+      filteredData = filteredData.filter(
+        (ticket) =>
+          ticket.codePackage &&
+          ticket.codePackage.toLowerCase().includes(searchText.toLowerCase())
+      );
+    }
+
+    return filteredData;  
+  };
   return (
     <div>
-      <Card>
+      <Card style={{ width: "1100px", height: "580px", margin: "0 20px" }}>
         <div>
           <h1>Danh sách gói vé</h1>
         </div>
         <div style={{ display: "flex", justifyContent: "space-between" }}>
           <Input.Search
-            placeholder="Tìm bằng số vé"
+            placeholder="Tìm bằng mã gói"
             style={{ width: "350px" }}
+            value={searchText}
+            onChange={(e) => setSearchText(e.target.value)}
           />
           <div>
-            <Button>Xuất file (.csv)</Button>
-            <Button onClick={() => setShowModal(true)}>Thêm gói vé</Button>
+            <Space className="mb-4">
+              <Button>Xuất file (.csv)</Button>
+              <Button onClick={() => setShowModal(true)}>Thêm gói vé</Button>
+            </Space>
 
             <Modal
               visible={showModal}
@@ -251,7 +259,7 @@ const ListTicket = () => {
             </Modal>
           </div>
         </div>
-        <Table columns={columns} dataSource={data} />
+        <Table columns={columns} dataSource={searchDevices()} pagination={{position: ['bottomCenter']}}/>
       </Card>
     </div>
   );

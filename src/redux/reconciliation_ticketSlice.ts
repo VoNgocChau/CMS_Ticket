@@ -9,6 +9,7 @@ export interface ReconciliationTicket {
     nameTicket: string;
     dateUsage: string;
     checkinGate: string;
+    status: string;
 }
 
 interface ReconciliationState {
@@ -28,6 +29,18 @@ export const fetchDataReconciliation = createAsyncThunk('firestore/reconciliatio
     })
     return data
 })
+
+export const updateReconciliationData = createAsyncThunk(
+    "reconciliation/updateData",
+    async (updatedTickets: ReconciliationTicket[]) => {
+      // Gửi yêu cầu cập nhật dữ liệu trong Firestore hoặc API của bạn
+      // Ví dụ:
+      for (const ticket of updatedTickets) {
+        const { id, ...data } = ticket;
+        await firestore.collection("reconciliation_ticket").doc(id).update(data);
+      }
+    }
+  );
 
 const reconciliationSlice = createSlice({
     name: 'reconciliations',

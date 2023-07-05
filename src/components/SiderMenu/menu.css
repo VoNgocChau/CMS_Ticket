@@ -1,6 +1,6 @@
 :where(.css-dev-only-do-not-override-12upa3x).ant-menu-light .ant-menu-item-selected , :where(.css-dev-only-do-not-override-12upa3x).ant-menu-light>.ant-menu .ant-menu-item-selected a, :where(.css-dev-only-do-not-override-12upa3x).ant-menu-light .ant-menu-item-selected a:hover, :where(.css-dev-only-do-not-override-12upa3x).ant-menu-light>.ant-menu .ant-menu-item-selected a:hover {
     color: #fff;
-    background-color: #ffb800;
+    background-color: #ffb800 !important;
 }
 
 .menu {
