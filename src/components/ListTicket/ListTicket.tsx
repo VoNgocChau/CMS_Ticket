@@ -20,7 +20,7 @@ import { useState, useEffect } from "react";
 import "./style.css";
 import { useAppDispatch, useAppSelector } from "../../redux/store";
 import { fetchDataPackage } from "../../redux/features/listPackageSlice";
-import moment, { Moment } from "moment";
+import moment from "moment";
 
 
 const ListTicket = () => {
@@ -105,14 +105,14 @@ const ListTicket = () => {
   };
   return (
     <div>
-      <Card style={{ width: "1100px", height: "580px", margin: "0 20px" }}>
+      <Card className="card__custom">
         <div>
           <h1>Danh sách gói vé</h1>
         </div>
-        <div style={{ display: "flex", justifyContent: "space-between" }}>
+        <div className="content__main">
           <Input.Search
             placeholder="Tìm bằng mã gói"
-            style={{ width: "350px" }}
+            className="input__custom"
             value={searchText}
             onChange={(e) => setSearchText(e.target.value)}
           />

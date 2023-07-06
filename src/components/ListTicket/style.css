@@ -42,3 +42,18 @@
   border-color: #ff993b; /* Thay đổi màu viền */
   color: #ff993b; /* Thay đổi màu chữ */
 }
+
+.card__custom {
+  width: 1100px;
+  height: 580px;
+  margin: 0 20px;
+}
+
+.input__custom {
+  width: 350px;
+}
+
+.content__main {
+  display: flex;
+  justify-content: space-between;
+}

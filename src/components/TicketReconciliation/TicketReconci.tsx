@@ -40,11 +40,11 @@ const TicketReconci = () => {
   const dispatch = useAppDispatch();
   const data = useAppSelector((state) => state.reconciliation.tickets);
   const [filterStatus, setFilterStatus] = useState("all");
+  const [searchText, setSearchText] = useState("");
   const [filteredDatas, setFilteredData] = useState<
     ReconciliationTicket[] | undefined
   >([]); // Dữ liệu đã lọc
 
-  const [searchText, setSearchText] = useState("")
   useEffect(() => {
     dispatch(fetchDataReconciliation());
   }, [dispatch]);
@@ -112,25 +112,19 @@ const TicketReconci = () => {
       );
     }
 
-    return searchData;  
+    return searchData;
   };
 
   return (
-    <div style={{ display: "flex" }}>
-      <Card style={{ width: "1150px", height: "580px", margin: "0 30px" }}>
+    <div className="d-flex">
+      <Card className="card__custom">
         <div>
           <h1>Đối soát vé</h1>
         </div>
-        <div
-          style={{
-            display: "flex",
-            justifyContent: "space-between",
-            margin: "10px 0",
-          }}
-        >
+        <div className="content__style">
           <Input.Search
             placeholder="Tìm bằng số vé"
-            style={{ width: "300px" }}
+            className="input__style"
             value={searchText}
             onChange={(e) => setSearchText(e.target.value)}
           />
@@ -147,7 +141,7 @@ const TicketReconci = () => {
         />
       </Card>
       <Form layout="horizontal">
-        <Card style={{ width: "350px", height: "580px", margin: "0 10px" }}>
+        <Card className="card__style">
           <h5>Lọc vé</h5>
           <Form.Item label="Tình trạng đối soát">
             <Radio.Group
@@ -165,7 +159,7 @@ const TicketReconci = () => {
             </Radio.Group>
           </Form.Item>
           <Form.Item label="Loại vé">
-            <p style={{ margin: "0 35%" }}>Vé cổng</p>
+            <p className="text__style">Vé cổng</p>
           </Form.Item>
           <Form.Item label="Từ ngày">
             <DatePicker format={"DD/MM/YYYY"} />
@@ -173,7 +167,7 @@ const TicketReconci = () => {
           <Form.Item label="Đến ngày">
             <DatePicker format={"DD/MM/YYYY"} />
           </Form.Item>
-          <Form.Item style={{ display: "flex", justifyContent: "center" }}>
+          <Form.Item className="d-flex justify-content-center">
             <Button className="btn__loc" onClick={handleFilterSubmit}>
               Lọc
             </Button>

@@ -5,8 +5,10 @@ import {
   Card,
   Checkbox,
   DatePicker,
+  Dropdown,
   Form,
   Input,
+  Menu,
   Modal,
   Radio,
   Space,
@@ -14,135 +16,11 @@ import {
   Tag,
 } from "antd";
 import "./ticket.css";
-import { FilterOutlined } from "@ant-design/icons";
+import { FilterOutlined, MoreOutlined } from "@ant-design/icons";
 import { useAppDispatch, useAppSelector } from "../../redux/store";
 import { Ticket, fetchTicketData } from "../../redux/features/ticketSlice";
 import { exportToExcel } from "./exportExcel";
 import { fetchDataEvent } from "../../redux/features/eventSlice";
-
-const familyPackageColumns = [
-  {
-    title: "STT",
-    dataIndex: "key",
-  },
-  {
-    title: "Booking Code",
-    dataIndex: "bookingCode",
-  },
-  {
-    title: "Số vé",
-    dataIndex: "numTicket",
-  },
-  {
-    title: "Tình trạng sử dụng",
-    dataIndex: "usageStatus",
-    render: (usageStatus: string) => {
-      let tagColor = "";
-      let badgeStatus = "";
-
-      switch (usageStatus) {
-        case "Đã sử dụng":
-          tagColor = "blue";
-          badgeStatus = "Đã sử dụng";
-          break;
-        case "Chưa sử dụng":
-          tagColor = "green";
-          badgeStatus = "Chưa sử dụng";
-          break;
-        case "Hết hạn":
-          tagColor = "red";
-          badgeStatus = "Hết hạn sử dụng";
-          break;
-        default:
-          tagColor = "";
-          badgeStatus = "";
-          break;
-      }
-
-      return (
-        <Tag color={tagColor}>
-          <Badge color={tagColor} text={badgeStatus} />
-        </Tag>
-      );
-    },
-  },
-  {
-    title: "Ngày sử dụng",
-    dataIndex: "dateUsage",
-  },
-  {
-    title: "Ngày xuất vé",
-    dataIndex: "dateIssue",
-  },
-  {
-    title: "Cổng check-in",
-    dataIndex: "checkinGate",
-  },
-];
-
-const eventPackageColumns = [
-  {
-    title: "STT",
-    dataIndex: "key",
-  },
-  {
-    title: "Booking Code",
-    dataIndex: "bookingCode",
-  },
-  {
-    title: "Số vé",
-    dataIndex: "numTicket",
-  },
-  {
-    title: "Tên sự kiện",
-    dataIndex: "nameEvent",
-  },
-  {
-    title: "Tình trạng sử dụng",
-    dataIndex: "usageStatus",
-    render: (usageStatus: string) => {
-      let tagColor = "";
-      let badgeStatus = "";
-
-      switch (usageStatus) {
-        case "Đã sử dụng":
-          tagColor = "blue";
-          badgeStatus = "Đã sử dụng";
-          break;
-        case "Chưa sử dụng":
-          tagColor = "green";
-          badgeStatus = "Chưa sử dụng";
-          break;
-        case "Hết hạn":
-          tagColor = "red";
-          badgeStatus = "Hết hạn sử dụng";
-          break;
-        default:
-          tagColor = "";
-          badgeStatus = "";
-          break;
-      }
-
-      return (
-        <Tag color={tagColor}>
-          <Badge color={tagColor} text={badgeStatus} />
-        </Tag>
-      );
-    },
-  },
-  {
-    title: "Ngày sử dụng",
-    dataIndex: "dateUsage",
-  },
-  {
-    title: "Ngày xuất vé",
-    dataIndex: "dateIssue",
-  },
-  {
-    title: "Cổng check-in",
-    dataIndex: "checkinGate",
-  },
-];
 
 const ManageTicket = () => {
   const dispatch = useAppDispatch();
@@ -151,8 +29,174 @@ const ManageTicket = () => {
   const [searchText, setSearchText] = useState("");
   const [usageStatus, setUsageStatus] = useState<string>("");
   const [showModal, setShowModal] = useState(false);
+  const [showModalAction, setShowModalAction] = useState(false);
   const [selectedPackage, setSelectedPackage] = useState<string | null>(null);
+  const [selectedTicket, setSelectedTicket] = useState<Ticket | null>(null);
 
+  // column table
+  const familyPackageColumns = [
+    {
+      title: "STT",
+      dataIndex: "key",
+    },
+    {
+      title: "Booking Code",
+      dataIndex: "bookingCode",
+    },
+    {
+      title: "Số vé",
+      dataIndex: "numTicket",
+    },
+    {
+      title: "Tình trạng sử dụng",
+      dataIndex: "usageStatus",
+      render: (usageStatus: string) => {
+        let tagColor = "";
+        let badgeStatus = "";
+
+        switch (usageStatus) {
+          case "Đã sử dụng":
+            tagColor = "blue";
+            badgeStatus = "Đã sử dụng";
+            break;
+          case "Chưa sử dụng":
+            tagColor = "green";
+            badgeStatus = "Chưa sử dụng";
+            break;
+          case "Hết hạn":
+            tagColor = "red";
+            badgeStatus = "Hết hạn sử dụng";
+            break;
+          default:
+            tagColor = "";
+            badgeStatus = "";
+            break;
+        }
+
+        return (
+          <Tag color={tagColor}>
+            <Badge color={tagColor} text={badgeStatus} />
+          </Tag>
+        );
+      },
+    },
+    {
+      title: "Ngày sử dụng",
+      dataIndex: "dateUsage",
+    },
+    {
+      title: "Ngày xuất vé",
+      dataIndex: "dateIssue",
+    },
+    {
+      title: "Cổng check-in",
+      dataIndex: "checkinGate",
+    },
+    {
+      title: "",
+      dataIndex: "",
+      key: "actions",
+      render: (_: any, record: Ticket) => (
+        <Dropdown
+          overlay={renderMenu(record)}
+          trigger={["click"]}
+          placement="bottomRight"
+        >
+          <Button type="text" icon={<MoreOutlined />} />
+        </Dropdown>
+      ),
+    },
+  ];
+
+  const eventPackageColumns = [
+    {
+      title: "STT",
+      dataIndex: "key",
+    },
+    {
+      title: "Booking Code",
+      dataIndex: "bookingCode",
+    },
+    {
+      title: "Số vé",
+      dataIndex: "numTicket",
+    },
+    {
+      title: "Tên sự kiện",
+      dataIndex: "nameEvent",
+    },
+    {
+      title: "Tình trạng sử dụng",
+      dataIndex: "usageStatus",
+      render: (usageStatus: string) => {
+        let tagColor = "";
+        let badgeStatus = "";
+
+        switch (usageStatus) {
+          case "Đã sử dụng":
+            tagColor = "blue";
+            badgeStatus = "Đã sử dụng";
+            break;
+          case "Chưa sử dụng":
+            tagColor = "green";
+            badgeStatus = "Chưa sử dụng";
+            break;
+          case "Hết hạn":
+            tagColor = "red";
+            badgeStatus = "Hết hạn sử dụng";
+            break;
+          default:
+            tagColor = "";
+            badgeStatus = "";
+            break;
+        }
+
+        return (
+          <Tag color={tagColor}>
+            <Badge color={tagColor} text={badgeStatus} />
+          </Tag>
+        );
+      },
+    },
+    {
+      title: "Ngày sử dụng",
+      dataIndex: "dateUsage",
+    },
+    {
+      title: "Ngày xuất vé",
+      dataIndex: "dateIssue",
+    },
+    {
+      title: "Cổng check-in",
+      dataIndex: "checkinGate",
+    },
+    {
+      title: "",
+      dataIndex: "",
+      key: "actions",
+      render: (_: any, record: Ticket) => (
+        <Dropdown
+          overlay={renderMenu(record)}
+          trigger={["click"]}
+          placement="bottomRight"
+        >
+          <Button type="text" icon={<MoreOutlined />} />
+        </Dropdown>
+      ),
+    },
+  ];
+  const renderMenu = (record: Ticket) => (
+    <Menu>
+      <Menu.Item key="usage">Sử dụng vé</Menu.Item>
+      <Menu.Item key="edit" onClick={() => handleEdit(record)}>
+        Đổi ngày sử dụng
+      </Menu.Item>
+      {/* Add more menu items as needed */}
+    </Menu>
+  );
+  //end column table
+
+  // fetch data from firebase
   useEffect(() => {
     const fetchData = async () => {
       await Promise.all([
@@ -163,8 +207,6 @@ const ManageTicket = () => {
     fetchData();
   }, [dispatch]);
 
- 
-
   const handleShowModal = () => {
     setShowModal(true);
   };
@@ -173,6 +215,12 @@ const ManageTicket = () => {
     setShowModal(false);
   };
 
+  const handleEdit = (record: Ticket) => {
+    setSelectedTicket(record);
+    setShowModalAction(true);
+  };
+
+  // striped table
   const rowClassName = (record: Ticket, index: number): string => {
     return index % 2 === 1 ? "table-row-striped" : "";
   };
@@ -230,10 +278,9 @@ const ManageTicket = () => {
     );
   };
 
-
   return (
     <div>
-      <Card className="card__style">
+      <Card className="card__style_">
         <div>
           <h3>Danh sách vé</h3>
         </div>
@@ -248,13 +295,7 @@ const ManageTicket = () => {
             Gói sự kiện
           </Button>
         </div>
-        <div
-          style={{
-            display: "flex",
-            justifyContent: "space-between",
-            margin: "20px 0",
-          }}
-        >
+        <div className="modal__custom">
           <Input.Search
             style={{ width: "300px" }}
             placeholder="Tìm kiếm theo số vé"
@@ -284,12 +325,9 @@ const ManageTicket = () => {
               okText="Lọc"
               className="custom__modal"
             >
-              <h1 style={{ textAlign: "center" }}>Lọc vé</h1>
+              <h1 className="text-center">Lọc vé</h1>
 
-              <Form
-                layout="vertical"
-                style={{ display: "flex", justifyContent: "space-between" }}
-              >
+              <Form layout="vertical" className="raido__custom">
                 <div>
                   <Form.Item label="Từ ngày">
                     <DatePicker
@@ -311,7 +349,7 @@ const ManageTicket = () => {
               <Form layout="vertical">
                 <Form.Item label="Tình trạng sử dụng">
                   <Radio.Group
-                    style={{ display: "flex", justifyContent: "space-between" }}
+                    className="radio__custom"
                     value={usageStatus}
                     onChange={(e) => setUsageStatus(e.target.value)}
                   >
@@ -326,9 +364,7 @@ const ManageTicket = () => {
               <Form layout="vertical">
                 <Form.Item label="Cổng Check - in">
                   <Checkbox>Tất cả</Checkbox>
-                  <Checkbox.Group
-                    style={{ display: "flex", justifyContent: "space-between" }}
-                  ></Checkbox.Group>
+                  <Checkbox.Group className="radio__custom"></Checkbox.Group>
                 </Form.Item>
               </Form>
             </Modal>
@@ -337,6 +373,23 @@ const ManageTicket = () => {
 
         {renderTable()}
       </Card>
+      <Modal
+        visible={showModalAction}
+        onCancel={() => setShowModalAction(false)}
+        footer={null}
+      >
+        <div>
+          <h6 className="text-center">Đổi ngày sử dụng vé</h6>
+          {selectedTicket && (
+            <div>
+              <h3>Thông tin vé</h3>
+              <p>Booking Code: {selectedTicket.bookingCode}</p>
+              <p>Số vé: {selectedTicket.numberTicket}</p>
+              {/* Các thông tin khác của vé */}
+            </div>
+          )}
+        </div>
+      </Modal>
     </div>
   );
 };

@@ -1,4 +1,4 @@
-.card__style {
+.card__style_ {
     margin: 0 45px;
 }
 
@@ -36,4 +36,15 @@
   
   .ant-modal-footer .ant-btn + .ant-btn {
     margin-left: 8px;
+  }
+
+  .radio__custom {
+    display: flex;
+    justify-content: space-between;
+  }
+
+  .modal__custom {
+    display: flex;
+    justify-content: space-between;
+    margin: 20px 0;
   }

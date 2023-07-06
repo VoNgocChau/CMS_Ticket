@@ -20,3 +20,29 @@
     color: #ff993b;
     font-weight: 700;
   }
+
+  .card__custom {
+    width: 1150px;
+    height: 580px;
+    margin: 0 30px;
+  }
+
+  .content__style {
+    display: flex;
+    justify-content: space-between;
+    margin: 10px 0;
+  }
+
+  .input__style {
+    width: 300px;
+  }
+
+  .card__style {
+    width: 350px;
+    height: 580px;
+    margin: 0 10px; 
+  }
+
+  .text__style {
+    margin: 0 35%;
+  }
