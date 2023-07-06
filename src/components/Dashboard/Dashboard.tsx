@@ -27,7 +27,7 @@ const Dashboard: React.FC<Props> = ({ data }) => {
   }, [data]);
   return (
     <div>
-      <Card className="card__style">
+      <Card className="card__style_dashboard">
         <section>
           <h1>Thống kê</h1>
         </section>

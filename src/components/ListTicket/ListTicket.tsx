@@ -21,7 +21,8 @@ import "./style.css";
 import { useAppDispatch, useAppSelector } from "../../redux/store";
 import { fetchDataPackage } from "../../redux/features/listPackageSlice";
 import moment from "moment";
-
+import {saveAs} from 'file-saver'
+import Papa from 'papaparse'
 
 const ListTicket = () => {
   const [showModal, setShowModal] = useState(false);
@@ -31,6 +32,14 @@ const ListTicket = () => {
   useEffect(() => {
     dispatch(fetchDataPackage());
   }, [dispatch]);
+
+  // export CSV file 
+  const exportToCSV = () => {
+    const csv = Papa.unparse(data);
+    const blobParts: BlobPart[] = [csv];
+    const blob = new Blob(blobParts, { type: 'text/csv;charset=utf-8' });
+    saveAs(blob, 'data.csv');
+  };
 
   const columns = [
     {
@@ -118,7 +127,7 @@ const ListTicket = () => {
           />
           <div>
             <Space className="mb-4">
-              <Button>Xuất file (.csv)</Button>
+              <Button onClick={exportToCSV}>Xuất file (.csv)</Button>
               <Button onClick={() => setShowModal(true)}>Thêm gói vé</Button>
             </Space>
 
