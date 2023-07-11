@@ -1,9 +1,6 @@
 import { Header } from "antd/es/layout/layout";
 import "./header.css";
 import { Input, Avatar, Row, Col } from "antd";
-import { icon_mail } from "../../assets/icon_mail";
-import { icon_bell } from "../../assets/icon_bell";
-import { icon_home } from "../../assets/icon_home";
 import { BellOutlined, MailOutlined } from "@ant-design/icons";
 
 const HeaderComponents = () => {

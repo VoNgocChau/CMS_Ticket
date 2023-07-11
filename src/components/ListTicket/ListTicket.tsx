@@ -19,26 +19,99 @@ import {
 import { useState, useEffect } from "react";
 import "./style.css";
 import { useAppDispatch, useAppSelector } from "../../redux/store";
-import { fetchDataPackage } from "../../redux/features/listPackageSlice";
-import moment from "moment";
-import {saveAs} from 'file-saver'
-import Papa from 'papaparse'
+import {
+  ListPackage,
+  addPackage,
+  editPackage,
+  fetchDataPackage,
+  selectPackages,
+} from "../../redux/features/listPackageSlice";
+import { saveAs } from "file-saver";
+import Papa from "papaparse";
+import { useForm } from "antd/es/form/Form";
+import dayjs from "dayjs";
+
 
 const ListTicket = () => {
   const [showModal, setShowModal] = useState(false);
   const dispatch = useAppDispatch();
   const data = useAppSelector((state) => state.packages.packages);
+  const selectedId = useAppSelector((state) => state.packages.selectedPackage);
+  const selectedPackages = useAppSelector((state) =>
+    state.packages.packages.find((packages) => packages.id === selectedId)
+  );
   const [searchText, setSearchText] = useState("");
+  const [isUpdateMode, setIsUpdateMode] = useState(false);
+  const [form] = useForm();
+
   useEffect(() => {
     dispatch(fetchDataPackage());
   }, [dispatch]);
 
-  // export CSV file 
+  const handleAddPackage = async (values: ListPackage) => {
+    const { priceTicket, priceCombo } = values;
+    const newPackages = {
+      ...values,
+      dateStart: dayjs(values.dateStart).format("DD/MM/YYYY"),
+      dateEnd: dayjs(values.dateEnd).format("DD/MM/YYYY"),
+      priceTicket: priceTicket !== undefined ? priceTicket : 0,
+      priceCombo: priceCombo !== undefined ? priceCombo : 0,
+    };
+
+    try {
+      dispatch(addPackage(newPackages));
+      form.resetFields();
+      console.log(newPackages);
+    } catch (err) {}
+  };
+
+  //update
+  const handleUpdatePackage = (values: any) => {
+    if (selectedPackages) {
+      const updatePackages = {
+        ...selectedPackages,
+        packageCode: values.packageCode,
+        packageName: values.packageName,
+        dateStart: values.dateStart,
+        dateEnd: values.dateEnd,
+        priceTicket: values.priceTicket,
+        priceCombo: values.priceCombo,
+        status: values.status,
+      };
+      dispatch(editPackage(updatePackages));
+      setShowModal(false);
+      console.log(updatePackages);
+    } else {
+      console.log("error");
+    }
+  };
+
+  const handleIdPackge = (id: string) => {
+    dispatch(selectPackages(id));
+    setShowModal(true);
+    console.log(id);
+  };
+
+  const handleOk = (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
+    if (isUpdateMode) {
+      form.submit();
+    } else {
+      handleAddPackage(form.getFieldsValue()); // Gọi handleAddPackage và chuyển giá trị values từ form
+    }
+  };
+
+  const handleShowModal = () => {
+    form.resetFields();
+    setIsUpdateMode(false);
+    setShowModal(true);
+  };
+
+  // export CSV file
   const exportToCSV = () => {
     const csv = Papa.unparse(data);
     const blobParts: BlobPart[] = [csv];
-    const blob = new Blob(blobParts, { type: 'text/csv;charset=utf-8' });
-    saveAs(blob, 'data.csv');
+    const blob = new Blob(blobParts, { type: "text/csv;charset=utf-8" });
+    saveAs(blob, "data.csv");
   };
 
   const columns = [
@@ -56,15 +129,11 @@ const ListTicket = () => {
     },
     {
       title: "Ngày áp dụng",
-      dataIndex: "startDate",
-      render: (dateStart: number) =>
-        moment(dateStart).format("DD/MM/YYYY HH:mm:ss"), // Sử dụng moment để định dạng và hiển thị ngày tháng
+      dataIndex: "dateStart",
     },
     {
       title: "Ngày hết hạn",
-      dataIndex: "endDate",
-      render: (endDate: number) =>
-        moment(endDate).format("DD/MM/YYYY HH:mm:ss"), // Sử dụng moment để định dạng và hiển thị ngày tháng
+      dataIndex: "dateEnd",
     },
     {
       title: "Giá vé (VNĐ/Vé)",
@@ -94,9 +163,20 @@ const ListTicket = () => {
       title: "Actions",
       dataIndex: "",
       key: "actions",
-      render: () => <Button icon={<EditOutlined />}>Cập nhật</Button>,
+      render: (record: any) => (
+        <Button
+          icon={<EditOutlined />}
+          onClick={() => {
+            setIsUpdateMode(true);
+            setShowModal(true);
+          }}
+        >
+          Cập nhật
+        </Button>
+      ),
     },
   ];
+  const pageSize = 5;
 
   // search
   const searchDevices = () => {
@@ -105,12 +185,15 @@ const ListTicket = () => {
     if (searchText !== "") {
       filteredData = filteredData.filter(
         (ticket) =>
-          ticket.codePackage &&
-          ticket.codePackage.toLowerCase().includes(searchText.toLowerCase())
+          ticket.packageCode &&
+          ticket.packageCode.toLowerCase().includes(searchText.toLowerCase())
       );
     }
 
-    return filteredData;  
+    return filteredData.map((item, idx) => ({
+      ...item,
+      key: idx + 1,
+    }));
   };
   return (
     <div>
@@ -128,147 +211,155 @@ const ListTicket = () => {
           <div>
             <Space className="mb-4">
               <Button onClick={exportToCSV}>Xuất file (.csv)</Button>
-              <Button onClick={() => setShowModal(true)}>Thêm gói vé</Button>
+              <Button
+                onClick={() => {
+                  handleShowModal();
+                }}
+              >
+                Thêm gói vé
+              </Button>
             </Space>
 
             <Modal
               visible={showModal}
               width={600}
-              okText="Lưu"
+              okText={isUpdateMode ? "Cập nhật" : "Lưu"}
               cancelText="Hủy"
               className="custom__modal"
               onCancel={() => setShowModal(false)}
+              onOk={handleOk}
             >
-              <div className="d-flex justify-content-center">Thêm gói vé</div>
-              <Row>
-                <Form layout="vertical">
-                  <Form.Item
-                    label="Mã gói vé"
-                    name="packageName"
-                    rules={[
-                      { required: true, message: "Vui lòng nhập mã gói vé!" },
-                    ]}
-                  >
-                    <Input
-                      placeholder="Nhập tên gói vé"
-                      className="input__package"
+              <div className="d-flex justify-content-center">
+                {isUpdateMode ? "Cập nhật thông tin gói vé" : "Thêm gói vé"}
+              </div>
+
+              <Form
+                layout="vertical"
+                form={form}
+                onFinish={handleUpdatePackage}
+              >
+                <Form.Item
+                  label="Mã gói vé"
+                  name="packageCode"
+                  rules={[
+                    { required: true, message: "Vui lòng nhập mã gói vé!" },
+                  ]}
+                >
+                  <Input
+                    placeholder="Nhập tên gói vé"
+                    className="input__package"
+                  />
+                </Form.Item>
+                <Form.Item
+                  label="Tên gói vé"
+                  name="packageName"
+                  rules={[
+                    { required: true, message: "Vui lòng nhập tên gói vé!" },
+                  ]}
+                >
+                  <Input
+                    placeholder="Nhập tên gói vé"
+                    className="input__package"
+                  />
+                </Form.Item>
+                <Form.Item
+                  label="Ngày áp dụng"
+                  name="dateStart"
+                  rules={[
+                    {
+                      required: true,
+                      message: "Vui lòng chọn ngày áp dụng!",
+                    },
+                  ]}
+                >
+                  <Space>
+                    <DatePicker
+                      placeholder="dd/mm/yy"
+                      format={"DD/MM/YYYY"}
+                      className="picker_style"
+                      onChange={(date) =>
+                        form.setFieldsValue({ dateStart: date })
+                      }
                     />
-                  </Form.Item>
-                  <Form.Item
-                    label="Tên gói vé"
-                    name="packageName"
-                    rules={[
-                      { required: true, message: "Vui lòng nhập tên gói vé!" },
-                    ]}
-                  >
-                    <Input
-                      placeholder="Nhập tên gói vé"
-                      className="input__package"
-                    />
-                  </Form.Item>
-                </Form>
-              </Row>
-              <Row>
-                <Col>
-                  <Form layout="vertical">
-                    <Form.Item
-                      label="Ngày áp dụng"
-                      name="dateRange"
-                      rules={[
-                        {
-                          required: true,
-                          message: "Vui lòng chọn ngày áp dụng!",
-                        },
-                      ]}
-                    >
-                      <Space>
-                        <DatePicker
-                          placeholder="dd/mm/yy"
-                          format={"DD/MM/YYYY"}
-                          className="picker_style"
-                        />
-                        <TimePicker
+                    {/* <TimePicker
                           placeholder="hh/mm/ss"
                           className="picker_style"
-                        />
-                      </Space>
-                    </Form.Item>
-                  </Form>
-                </Col>
-                <Col className="ms-3">
-                  <Form layout="vertical">
-                    <Form.Item
-                      label="Ngày hết hạn"
-                      name="dateRange"
-                      rules={[
-                        {
-                          required: true,
-                          message: "Vui lòng chọn ngày hết hạn!",
-                        },
-                      ]}
-                    >
-                      <Space>
-                        <DatePicker
-                          placeholder="dd/mm/yy"
-                          format={"DD/MM/YYYY"}
-                          className="picker_style"
-                        />
-                        <TimePicker
+                        /> */}
+                  </Space>
+                </Form.Item>
+                <Form.Item
+                  label="Ngày hết hạn"
+                  name="dateEnd"
+                  rules={[
+                    {
+                      required: true,
+                      message: "Vui lòng chọn ngày hết hạn!",
+                    },
+                  ]}
+                >
+                  <Space>
+                    <DatePicker
+                      placeholder="dd/mm/yy"
+                      format={"DD/MM/YYYY"}
+                      className="picker_style"
+                      onChange={(date) =>
+                        form.setFieldsValue({ dateEnd: date })
+                      }
+                    />
+                    {/* <TimePicker
                           placeholder="hh/mm/ss"
                           className="picker_style"
-                        />
-                      </Space>
-                    </Form.Item>
-                  </Form>
-                </Col>
-              </Row>
-              <Row>
-                <Form layout="vertical">
-                  <Form.Item
-                    label="Giá vé áp dụng"
-                    name="priceTicket"
-                    rules={[
-                      {
-                        required: true,
-                        message: "Vui lòng nhập giá vé áp dụng!",
-                      },
-                    ]}
-                  >
-                    <Checkbox>
-                      Vé lẻ (vnđ/vé) với giá{" "}
-                      <Input className="w-25" placeholder="Giá vé" />/ vé
-                    </Checkbox>
-                    <Checkbox className="mt-3">
-                      Combo vé với giá{" "}
-                      <Input className="w-25" placeholder="Giá vé" />
-                      / <Input className="w-25" placeholder="Giá vé" /> / vé
-                    </Checkbox>
-                  </Form.Item>
-                </Form>
-              </Row>
-              <Row>
-                <Form layout="vertical">
-                  <Form.Item
-                    label="Tình trạng"
-                    name="status"
-                    rules={[
-                      { required: true, message: "Vui lòng chọn tình trạng!" },
-                    ]}
-                  >
-                    <Select className="custom__select">
-                      <Select.Option value={true}>Đang hoạt động</Select.Option>
-                    </Select>
-                  </Form.Item>
-                  <Form.Item>
-                    <span className="dot__custom">*</span>
-                    <span className="text__custom">Là thông tin bắt buộc</span>
-                  </Form.Item>
-                </Form>
-              </Row>
+                        /> */}
+                  </Space>
+                </Form.Item>
+                <Form.Item name="priceTicket">
+                  <Input type="number" className="w-25" />
+                </Form.Item>
+                <Form.Item label="" name="priceCombo">
+                  <Input type="number" className="w-25" />
+                </Form.Item>
+                <Form.Item
+                  label="Tình trạng"
+                  name="status"
+                  rules={[
+                    { required: true, message: "Vui lòng chọn tình trạng!" },
+                  ]}
+                >
+                  <Select className="custom__select">
+                    <Select.Option value={true}>Đang hoạt động</Select.Option>
+                  </Select>
+                </Form.Item>
+                <Form.Item>
+                  <span className="dot__custom">*</span>
+                  <span className="text__custom">Là thông tin bắt buộc</span>
+                </Form.Item>
+              </Form>
             </Modal>
           </div>
         </div>
-        <Table columns={columns} dataSource={searchDevices()} pagination={{position: ['bottomCenter']}}/>
+        <Table
+          columns={columns}
+          dataSource={searchDevices()}
+          pagination={{ position: ["bottomCenter"], pageSize: pageSize }}
+          rowKey={(record) => record.id}
+          onRow={(record) => ({
+            onClick: () => {
+              setIsUpdateMode(true);
+              setShowModal(true);
+
+              form.setFieldsValue({
+                packageCode: record.packageCode,
+                packageName: record.packageName,
+                dateStart:record.dateStart,
+                dateEnd: record.dateEnd,
+                priceTicket: record.priceTicket,
+                priceCombo: record.priceCombo,
+                status: record.status,
+              });
+              handleIdPackge(record.id);
+            },
+          })}
+        />
       </Card>
     </div>
   );
