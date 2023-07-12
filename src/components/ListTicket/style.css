@@ -1,9 +1,9 @@
 .input__package {
-  width: 300px;
+  width: 250px;
 }
 
 .picker_style {
-  width: 130px !important;
+  width: 250px !important;
 }
 
 .picker_style .ant-picker-suffix svg {
@@ -44,8 +44,8 @@
 }
 
 .card__custom {
-  width: 100%;
-  height: 100vh;
+  width: 95%;
+  height: 100%;
   margin: 0 20px;
 }
 
@@ -56,4 +56,9 @@
 .content__main {
   display: flex;
   justify-content: space-between;
+}
+
+.btn__custom_border{
+  border-color: #ff993b;
+  color: #ff993b;
 }

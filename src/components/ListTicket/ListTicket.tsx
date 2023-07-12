@@ -30,7 +30,7 @@ import { saveAs } from "file-saver";
 import Papa from "papaparse";
 import { useForm } from "antd/es/form/Form";
 import dayjs from "dayjs";
-
+import { rowClassName } from "../StripedTable";
 
 const ListTicket = () => {
   const [showModal, setShowModal] = useState(false);
@@ -48,14 +48,17 @@ const ListTicket = () => {
     dispatch(fetchDataPackage());
   }, [dispatch]);
 
+  //add
   const handleAddPackage = async (values: ListPackage) => {
-    const { priceTicket, priceCombo } = values;
+    const { priceTicket, priceCombo, numCombo } = values;
     const newPackages = {
       ...values,
       dateStart: dayjs(values.dateStart).format("DD/MM/YYYY"),
       dateEnd: dayjs(values.dateEnd).format("DD/MM/YYYY"),
       priceTicket: priceTicket !== undefined ? priceTicket : 0,
       priceCombo: priceCombo !== undefined ? priceCombo : 0,
+      numCombo: numCombo !== undefined ? numCombo : 0,
+  
     };
 
     try {
@@ -76,6 +79,7 @@ const ListTicket = () => {
         dateEnd: values.dateEnd,
         priceTicket: values.priceTicket,
         priceCombo: values.priceCombo,
+        numCombo: values.numCombo,
         status: values.status,
       };
       dispatch(editPackage(updatePackages));
@@ -142,6 +146,18 @@ const ListTicket = () => {
     {
       title: "Giá combo (VNĐ/Combo)",
       dataIndex: "priceCombo",
+     
+      render: (text: any, record: ListPackage) => (
+          <div>
+            <span>
+            {record.priceCombo} VNĐ
+            </span>
+              
+              <span>
+                /{record.numCombo} Vé
+              </span>
+          </div>
+      )
     },
     {
       title: "Status",
@@ -166,6 +182,8 @@ const ListTicket = () => {
       render: (record: any) => (
         <Button
           icon={<EditOutlined />}
+          type="text"
+          style={{color: '#ff993b'}}
           onClick={() => {
             setIsUpdateMode(true);
             setShowModal(true);
@@ -195,11 +213,12 @@ const ListTicket = () => {
       key: idx + 1,
     }));
   };
+
   return (
     <div>
       <Card className="card__custom">
         <div>
-          <h1>Danh sách gói vé</h1>
+          <h4 className="mb-4 fw-bold">Danh sách gói vé</h4>
         </div>
         <div className="content__main">
           <Input.Search
@@ -210,11 +229,12 @@ const ListTicket = () => {
           />
           <div>
             <Space className="mb-4">
-              <Button onClick={exportToCSV}>Xuất file (.csv)</Button>
+              <Button onClick={exportToCSV} className="btn__custom_border">Xuất file (.csv)</Button>
               <Button
                 onClick={() => {
                   handleShowModal();
                 }}
+                 className="btn__custom"
               >
                 Thêm gói vé
               </Button>
@@ -312,12 +332,31 @@ const ListTicket = () => {
                         /> */}
                   </Space>
                 </Form.Item>
-                <Form.Item name="priceTicket">
-                  <Input type="number" className="w-25" />
-                </Form.Item>
-                <Form.Item label="" name="priceCombo">
-                  <Input type="number" className="w-25" />
-                </Form.Item>
+                <div className="d-flex flex-column">
+                  <div className="d-inline-flex">
+                    <div className="me-3">Giá vé (vnđ/vé) với giá</div>
+                    <div>
+                      <Form.Item name="priceTicket">
+                        <Input type="number" className="w-100" />
+                      </Form.Item>
+                    </div>
+                    <span className="ms-2">/vé</span>
+                  </div>
+                  <div className="d-inline-flex">
+                    <div className="me-3">Combo vé với giá</div>
+                    <div>
+                      <Form.Item label="" name="priceCombo">
+                        <Input type="number" className="w-100" />
+                      </Form.Item>
+                      
+                    </div>
+                    <span className="mx-2">/</span> 
+                    <Form.Item label="" name="numCombo">
+                        <Input type="number" className="w-100" />
+                      </Form.Item>
+                    <span className="ms-3">/vé</span>
+                  </div>
+                </div>
                 <Form.Item
                   label="Tình trạng"
                   name="status"
@@ -350,15 +389,18 @@ const ListTicket = () => {
               form.setFieldsValue({
                 packageCode: record.packageCode,
                 packageName: record.packageName,
-                dateStart:record.dateStart,
+                dateStart: record.dateStart,
                 dateEnd: record.dateEnd,
                 priceTicket: record.priceTicket,
                 priceCombo: record.priceCombo,
+                numCombo: record.numCombo,
                 status: record.status,
               });
               handleIdPackge(record.id);
             },
           })}
+          size="small"
+          rowClassName={rowClassName}
         />
       </Card>
     </div>

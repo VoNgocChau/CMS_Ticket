@@ -12,6 +12,7 @@ export interface ListPackage {
   dateEnd: string | null;
   priceTicket: number;
   priceCombo: number;
+  numCombo: number;
   status: boolean;
 }
 

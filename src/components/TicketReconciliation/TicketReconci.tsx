@@ -8,6 +8,7 @@ import {
   fetchDataReconciliation,
   updateReconciliationData,
 } from "../../redux/reconciliation_ticketSlice";
+import { rowClassName } from "../StripedTable";
 
 const columns = [
   {
@@ -74,12 +75,6 @@ const TicketReconci = () => {
     }
   };
 
-  const rowClassName = (record: any, index: number): string => {
-    if (index % 2 === 1) {
-      return "table-row-striped";
-    }
-    return "";
-  };
 
   // chot doi soat
   const handleReconciliation = () => {
@@ -119,7 +114,7 @@ const TicketReconci = () => {
     <div className="d-flex">
       <Card className="card__custom">
         <div>
-          <h1>Đối soát vé</h1>
+          <h4 className="mb-4 fw-bold">Đối soát vé</h4>
         </div>
         <div className="content__style">
           <Input.Search
@@ -143,7 +138,7 @@ const TicketReconci = () => {
       <Form layout="horizontal">
         <Card className="card__style">
           <h5>Lọc vé</h5>
-          <Form.Item label="Tình trạng đối soát">
+          <Form.Item label={<span className="txt__recon">Tình trạng đối soát</span>}>
             <Radio.Group
               style={{
                 display: "flex",
@@ -158,13 +153,13 @@ const TicketReconci = () => {
               <Radio value="Đã đối soát">Đã đối soát</Radio>
             </Radio.Group>
           </Form.Item>
-          <Form.Item label="Loại vé">
+          <Form.Item label={<span className="txt__recon">Loại vé</span>}>
             <p className="text__style">Vé cổng</p>
           </Form.Item>
-          <Form.Item label="Từ ngày">
+          <Form.Item label={<span className="txt__recon">Từ ngày</span>}>
             <DatePicker format={"DD/MM/YYYY"} />
           </Form.Item>
-          <Form.Item label="Đến ngày">
+          <Form.Item label={<span className="txt__recon">Đến ngày</span>}>
             <DatePicker format={"DD/MM/YYYY"} />
           </Form.Item>
           <Form.Item className="d-flex justify-content-center">

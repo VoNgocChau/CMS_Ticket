@@ -21,6 +21,7 @@ import { useAppDispatch, useAppSelector } from "../../redux/store";
 import { Ticket, fetchTicketData } from "../../redux/features/ticketSlice";
 import { exportToExcel } from "./exportExcel";
 import { fetchDataEvent } from "../../redux/features/eventSlice";
+import { rowClassName } from "../StripedTable";
 
 const ManageTicket = () => {
   const dispatch = useAppDispatch();
@@ -96,7 +97,7 @@ const ManageTicket = () => {
       title: "",
       dataIndex: "",
       key: "actions",
-      render: (_: any, record: Ticket) => (
+      render: (_: any, record: any) => (
         <Dropdown
           overlay={renderMenu(record)}
           trigger={["click"]}
@@ -215,15 +216,14 @@ const ManageTicket = () => {
     setShowModal(false);
   };
 
-  const handleEdit = (record: Ticket) => {
+  const handleEdit = (record: Ticket ) => {
     setSelectedTicket(record);
+    console.log(record)
     setShowModalAction(true);
   };
 
   // striped table
-  const rowClassName = (record: Ticket, index: number): string => {
-    return index % 2 === 1 ? "table-row-striped" : "";
-  };
+   
 
   // search
   const searchDevices = () => {
@@ -251,6 +251,7 @@ const ManageTicket = () => {
           bordered
           size="middle"
           pagination={{ position: ["bottomCenter"] }}
+          
         />
       );
     }
@@ -261,7 +262,7 @@ const ManageTicket = () => {
           dataSource={eventData}
           rowClassName={rowClassName}
           bordered
-          size="middle"
+          size="small"
           pagination={{ position: ["bottomCenter"] }}
         />
       );
@@ -272,7 +273,7 @@ const ManageTicket = () => {
         dataSource={searchDevices()}
         rowClassName={rowClassName}
         bordered
-        size="middle"
+        size="small"
         pagination={{ position: ["bottomCenter"] }}
       />
     );
@@ -282,7 +283,7 @@ const ManageTicket = () => {
     <div>
       <Card className="card__style_">
         <div>
-          <h3>Danh sách vé</h3>
+          <h4 className="mb-4 fw-bold">Danh sách vé</h4>
         </div>
         <div>
           <Button
@@ -376,16 +377,28 @@ const ManageTicket = () => {
       <Modal
         visible={showModalAction}
         onCancel={() => setShowModalAction(false)}
-        footer={null}
+        className="modal__btn"
+        okText= "Lưu"
+        cancelText ="Hủy"
       >
         <div>
           <h6 className="text-center">Đổi ngày sử dụng vé</h6>
           {selectedTicket && (
-            <div>
-              <h3>Thông tin vé</h3>
-              <p>Booking Code: {selectedTicket.bookingCode}</p>
-              <p>Số vé: {selectedTicket.numberTicket}</p>
-              {/* Các thông tin khác của vé */}
+            <div className="d-flex"> 
+                <div className="d-flex flex-column">
+                  <p>Mã vé</p>
+                  <p>Số vé</p>
+                  <p>Tên sự kiện</p>
+                  <p>Hạn sử dụng</p>
+                </div>
+                <div className="d-flex flex-column" style={{marginLeft: '80px'}}>
+                  <p>{selectedTicket.bookingCode}</p>
+                  <p>Vé cổng - Gói sự kiện</p>
+                  <p>{selectedTicket.eventName}</p>
+                  <p>
+                      <DatePicker/>
+                  </p>
+                </div>
             </div>
           )}
         </div>

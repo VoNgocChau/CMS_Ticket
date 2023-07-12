@@ -1,50 +1,87 @@
 .card__style_ {
-    margin: 0 45px;
+  margin: 0 45px;
 }
 
 .btn__style {
-    border-color: #ff993b;
-    color: #ff993b;
-    font-weight: 700;
+  border-color: #ff993b;
+  color: #ff993b;
+  font-weight: 700;
 }
 .table-row-striped {
-    background-color: #f5f5f5;
-  }
+  background-color: #f5f5f5;
+}
 
-  .custom__datepicker .ant-picker-suffix svg{
-    fill: #ff993b;
-  }
+.custom__datepicker .ant-picker-suffix svg {
+  fill: #ff993b;
+}
 
 /* Chỉnh màu cho nút "Lọc" */
 .custom__modal .ant-btn-primary {
-    background-color: #ffffff; /* Thay đổi màu nền */
-    border-color: #ff993b; /* Thay đổi màu viền */
-    color: #ff993b; /* Thay đổi màu chữ */
-  }
-  
-  /* Chỉnh màu cho nút "Hủy" */
-  .custom__modal .ant-btn-default {
-    background-color: #ffffff; /* Thay đổi màu nền */
-    border-color: #ff993b; /* Thay đổi màu viền */
-    color: #ff993b; /* Thay đổi màu chữ */
-  }
+  background-color: #ffffff; /* Thay đổi màu nền */
+  border-color: #ff993b; /* Thay đổi màu viền */
+  color: #ff993b; /* Thay đổi màu chữ */
+}
 
-  .ant-modal-footer {
-    display: flex;
-    justify-content: center;
-  }
-  
-  .ant-modal-footer .ant-btn + .ant-btn {
-    margin-left: 8px;
-  }
+/* Chỉnh màu cho nút "Hủy" */
+.custom__modal .ant-btn-default {
+  background-color: #ffffff; /* Thay đổi màu nền */
+  border-color: #ff993b; /* Thay đổi màu viền */
+  color: #ff993b; /* Thay đổi màu chữ */
+}
 
-  .radio__custom {
-    display: flex;
-    justify-content: space-between;
-  }
+.ant-modal-footer {
+  display: flex;
+  justify-content: center;
+}
 
-  .modal__custom {
-    display: flex;
-    justify-content: space-between;
-    margin: 20px 0;
-  }
+.ant-modal-footer .ant-btn + .ant-btn {
+  margin-left: 8px;
+}
+
+.radio__custom {
+  display: flex;
+  justify-content: space-between;
+}
+
+.modal__custom {
+  display: flex;
+  justify-content: space-between;
+  margin: 20px 0;
+}
+.modal__btn .ant-btn-primary {
+  width: 100px;
+  background-color: #ff993b; /* Thay đổi màu nền */
+  border-color: #ff993b; /* Thay đổi màu viền */
+  color: #ffffff; /* Thay đổi màu chữ */
+}
+
+/* Chỉnh màu cho nút "Hủy" */
+.modal__btn .ant-btn-default {
+  width: 100px;
+
+  background-color: #ffffff; /* Thay đổi màu nền */
+  border-color: #ff993b; /* Thay đổi màu viền */
+  color: #ff993b; /* Thay đổi màu chữ */
+}
+.modal__btn .ant-btn-primary:hover {
+  width: 100px;
+  background-color: #ff993b; /* Thay đổi màu nền */
+  border-color: #ff993b; /* Thay đổi màu viền */
+  color: #ffffff; /* Thay đổi màu chữ */
+}
+
+/* Chỉnh màu cho nút "Hủy" */
+.modal__btn .ant-btn-default:hover {
+  width: 100px;
+
+  background-color: #ffffff; /* Thay đổi màu nền */
+  border-color: #ff993b; /* Thay đổi màu viền */
+  color: #ff993b; /* Thay đổi màu chữ */
+}
+
+.ant-table-cell {
+  white-space: nowrap; /* Ngăn chặn xuống dòng */
+}
+
+.ant-pagination-item-active {
+  border-color: #ff993b !important; }

@@ -1,48 +1,58 @@
 .table-row-striped {
-    background-color: #f5f5f5;
-  }
+  background-color: #f5f5f5;
+}
 
-  .btn__custom {
-    background-color: #ff993b;
-    color: #ffffff;
-    border-color: #ff993b ;
-  }
-  .btn__custom:hover {
-    background-color: #ff993b !important;
-    color: #ffffff !important;
-    border-color: #ff993b !important;
-  }
+.btn__custom {
+  background-color: #ff993b;
+  color: #ffffff;
+  border-color: #ff993b;
+}
+.btn__custom:hover {
+  background-color: #ff993b !important;
+  color: #ffffff !important;
+  border-color: #ff993b !important;
+}
 
-  .btn__loc {
-    width: 100px;
-    background-color: #ffffff;
-    border-color: #ff993b;
-    color: #ff993b;
-    font-weight: 700;
-  }
+.btn__loc {
+  width: 100px;
+  background-color: #ffffff;
+  border-color: #ff993b;
+  color: #ff993b;
+  font-weight: 700;
+}
 
-  .card__custom {
-    width: 1150px;
-    height: 580px;
-    margin: 0 30px;
-  }
+.card__custom {
+  width: 100%;
+  height: 100%;
+  margin: 0 30px;
+}
 
-  .content__style {
-    display: flex;
-    justify-content: space-between;
-    margin: 10px 0;
-  }
+.content__style {
+  display: flex;
+  justify-content: space-between;
+  margin: 10px 0;
+}
 
-  .input__style {
-    width: 300px;
-  }
+.input__style {
+  width: 300px;
+}
 
-  .card__style {
-    width: 350px;
-    height: 580px;
-    margin: 0 10px; 
-  }
+.card__style {
+  width: 350px;
+  height: 560px;
+  margin: 0 10px;
+}
 
-  .text__style {
-    margin: 0 35%;
-  }
+.text__style {
+  margin: 0 35%;
+}
+
+.txt__recon {
+  color: var(--text, #1e0d03);
+  /* 16 semibold */
+  font-family: Montserrat;
+  font-size: 16px;
+  font-style: normal;
+  font-weight: 600;
+  line-height: 26px;
+}

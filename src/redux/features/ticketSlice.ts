@@ -10,6 +10,7 @@ export interface Ticket {
     dateUsage: string;
     dateIssue: string;
     checkinGate: string;
+    eventName: string;
     checkboxValue?: number; 
 }
 
