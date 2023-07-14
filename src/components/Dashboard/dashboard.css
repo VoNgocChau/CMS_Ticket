@@ -1,3 +1,25 @@
 .card__style_dashboard {
-    margin: 0 45px;
+  margin: 0 45px;
+}
+
+.chart__style {
+  width: 100%;
+  height: 20%;
+}
+
+.circle {
+  display: flex;
+  justify-content: space-between;
+  width: 18.8125rem;
+  height: 17rem;
+}
+
+.row {
+    flex-basis: 100%;
+    display: flex;
+}
+
+.item {
+    flex-basis: 33.3%;
+    
 }

@@ -58,7 +58,6 @@ const ListTicket = () => {
       priceTicket: priceTicket !== undefined ? priceTicket : 0,
       priceCombo: priceCombo !== undefined ? priceCombo : 0,
       numCombo: numCombo !== undefined ? numCombo : 0,
-  
     };
 
     try {
@@ -146,18 +145,14 @@ const ListTicket = () => {
     {
       title: "Giá combo (VNĐ/Combo)",
       dataIndex: "priceCombo",
-     
+
       render: (text: any, record: ListPackage) => (
-          <div>
-            <span>
-            {record.priceCombo} VNĐ
-            </span>
-              
-              <span>
-                /{record.numCombo} Vé
-              </span>
-          </div>
-      )
+        <div>
+          <span>{record.priceCombo} VNĐ</span>
+
+          <span>/{record.numCombo} Vé</span>
+        </div>
+      ),
     },
     {
       title: "Status",
@@ -176,14 +171,14 @@ const ListTicket = () => {
         ),
     },
     {
-      title: "Actions",
+      title: "",
       dataIndex: "",
       key: "actions",
       render: (record: any) => (
         <Button
           icon={<EditOutlined />}
           type="text"
-          style={{color: '#ff993b'}}
+          style={{ color: "#ff993b" }}
           onClick={() => {
             setIsUpdateMode(true);
             setShowModal(true);
@@ -229,12 +224,14 @@ const ListTicket = () => {
           />
           <div>
             <Space className="mb-4">
-              <Button onClick={exportToCSV} className="btn__custom_border">Xuất file (.csv)</Button>
+              <Button onClick={exportToCSV} className="btn__custom_border">
+                Xuất file (.csv)
+              </Button>
               <Button
                 onClick={() => {
                   handleShowModal();
                 }}
-                 className="btn__custom"
+                className="btn__custom"
               >
                 Thêm gói vé
               </Button>
@@ -258,80 +255,84 @@ const ListTicket = () => {
                 form={form}
                 onFinish={handleUpdatePackage}
               >
-                <Form.Item
-                  label="Mã gói vé"
-                  name="packageCode"
-                  rules={[
-                    { required: true, message: "Vui lòng nhập mã gói vé!" },
-                  ]}
-                >
-                  <Input
-                    placeholder="Nhập tên gói vé"
-                    className="input__package"
-                  />
-                </Form.Item>
-                <Form.Item
-                  label="Tên gói vé"
-                  name="packageName"
-                  rules={[
-                    { required: true, message: "Vui lòng nhập tên gói vé!" },
-                  ]}
-                >
-                  <Input
-                    placeholder="Nhập tên gói vé"
-                    className="input__package"
-                  />
-                </Form.Item>
-                <Form.Item
-                  label="Ngày áp dụng"
-                  name="dateStart"
-                  rules={[
-                    {
-                      required: true,
-                      message: "Vui lòng chọn ngày áp dụng!",
-                    },
-                  ]}
-                >
-                  <Space>
-                    <DatePicker
-                      placeholder="dd/mm/yy"
-                      format={"DD/MM/YYYY"}
-                      className="picker_style"
-                      onChange={(date) =>
-                        form.setFieldsValue({ dateStart: date })
-                      }
+                <div className="d-flex justify-content-between">
+                  <Form.Item
+                    label="Mã gói vé"
+                    name="packageCode"
+                    rules={[
+                      { required: true, message: "Vui lòng nhập mã gói vé!" },
+                    ]}
+                  >
+                    <Input
+                      placeholder="Nhập tên gói vé"
+                      className="input__package"
                     />
-                    {/* <TimePicker
+                  </Form.Item>
+                  <Form.Item
+                    label="Tên gói vé"
+                    name="packageName"
+                    rules={[
+                      { required: true, message: "Vui lòng nhập tên gói vé!" },
+                    ]}
+                  >
+                    <Input
+                      placeholder="Nhập tên gói vé"
+                      className="input__package"
+                    />
+                  </Form.Item>
+                </div>
+                <div className="d-flex justify-content-between">
+                  <Form.Item
+                    label="Ngày áp dụng"
+                    name="dateStart"
+                    rules={[
+                      {
+                        required: true,
+                        message: "Vui lòng chọn ngày áp dụng!",
+                      },
+                    ]}
+                  >
+                    <Space>
+                      <DatePicker
+                        placeholder="dd/mm/yy"
+                        format={"DD/MM/YYYY"}
+                        className="picker_style"
+                        onChange={(date) =>
+                          form.setFieldsValue({ dateStart: date })
+                        }
+                      />
+                      {/* <TimePicker
                           placeholder="hh/mm/ss"
                           className="picker_style"
                         /> */}
-                  </Space>
-                </Form.Item>
-                <Form.Item
-                  label="Ngày hết hạn"
-                  name="dateEnd"
-                  rules={[
-                    {
-                      required: true,
-                      message: "Vui lòng chọn ngày hết hạn!",
-                    },
-                  ]}
-                >
-                  <Space>
-                    <DatePicker
-                      placeholder="dd/mm/yy"
-                      format={"DD/MM/YYYY"}
-                      className="picker_style"
-                      onChange={(date) =>
-                        form.setFieldsValue({ dateEnd: date })
-                      }
-                    />
-                    {/* <TimePicker
+                    </Space>
+                  </Form.Item>
+                  <Form.Item
+                    label="Ngày hết hạn"
+                    name="dateEnd"
+                    rules={[
+                      {
+                        required: true,
+                        message: "Vui lòng chọn ngày hết hạn!",
+                      },
+                    ]}
+                  >
+                    <Space>
+                      <DatePicker
+                        placeholder="dd/mm/yy"
+                        format={"DD/MM/YYYY"}
+                        className="picker_style"
+                        onChange={(date) =>
+                          form.setFieldsValue({ dateEnd: date })
+                        }
+                      />
+                      {/* <TimePicker
                           placeholder="hh/mm/ss"
                           className="picker_style"
                         /> */}
-                  </Space>
-                </Form.Item>
+                    </Space>
+                  </Form.Item>
+                </div>
                 <div className="d-flex flex-column">
                   <div className="d-inline-flex">
                     <div className="me-3">Giá vé (vnđ/vé) với giá</div>
@@ -348,12 +349,11 @@ const ListTicket = () => {
                       <Form.Item label="" name="priceCombo">
                         <Input type="number" className="w-100" />
                       </Form.Item>
-                      
                     </div>
-                    <span className="mx-2">/</span> 
+                    <span className="mx-2">/</span>
                     <Form.Item label="" name="numCombo">
-                        <Input type="number" className="w-100" />
-                      </Form.Item>
+                      <Input type="number" className="w-100" />
+                    </Form.Item>
                     <span className="ms-3">/vé</span>
                   </div>
                 </div>

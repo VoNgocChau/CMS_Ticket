@@ -13,7 +13,8 @@ import { rowClassName } from "../StripedTable";
 const columns = [
   {
     title: "STT",
-    dataIndex: "key",
+    dataIndex: "",
+    render: (_:any,__: any,index: any) => index + 1
   },
   {
     title: "Số vé",
@@ -61,7 +62,7 @@ const TicketReconci = () => {
   const filterData = (data: ReconciliationTicket[], filterStatus: string) => {
     if (filterStatus === "all") {
       return data;
-    } else if (filterStatus === "unreconciled") {
+    } else if (filterStatus === "Chưa đối soát") {
       return data.filter((ticket) => ticket.status === filterStatus);
     } else if (filterStatus === "Đã đối soát") {
       return data.filter((ticket) => ticket.status === filterStatus);
@@ -135,8 +136,9 @@ const TicketReconci = () => {
           rowClassName={rowClassName}
         />
       </Card>
-      <Form layout="horizontal">
+      
         <Card className="card__style">
+        <Form layout="horizontal">
           <h5>Lọc vé</h5>
           <Form.Item label={<span className="txt__recon">Tình trạng đối soát</span>}>
             <Radio.Group
@@ -149,7 +151,7 @@ const TicketReconci = () => {
               value={filterStatus}
             >
               <Radio value="all">Tất cả</Radio>
-              <Radio value="unreconciled">Chưa đối soát</Radio>
+              <Radio value="Chưa đối soát">Chưa đối soát</Radio>
               <Radio value="Đã đối soát">Đã đối soát</Radio>
             </Radio.Group>
           </Form.Item>
@@ -167,8 +169,8 @@ const TicketReconci = () => {
               Lọc
             </Button>
           </Form.Item>
-        </Card>
       </Form>
+        </Card>
     </div>
   );
 };

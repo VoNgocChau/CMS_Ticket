@@ -25,3 +25,7 @@ a {
     width: 200px;
     min-height: 100vh;
 }
+:where(.css-dev-only-do-not-override-12upa3x).ant-menu-light .ant-menu-submenu-selected >.ant-menu-submenu-title, :where(.css-dev-only-do-not-override-12upa3x).ant-menu-light>.ant-menu .ant-menu-submenu-selected >.ant-menu-submenu-title {
+    color: #fff;
+    background-color: #ffb800;
+}

@@ -22,6 +22,8 @@ import { Ticket, fetchTicketData } from "../../redux/features/ticketSlice";
 import { exportToExcel } from "./exportExcel";
 import { fetchDataEvent } from "../../redux/features/eventSlice";
 import { rowClassName } from "../StripedTable";
+import { CheckboxValueType } from "antd/es/checkbox/Group";
+import dayjs from "dayjs";
 
 const ManageTicket = () => {
   const dispatch = useAppDispatch();
@@ -33,6 +35,19 @@ const ManageTicket = () => {
   const [showModalAction, setShowModalAction] = useState(false);
   const [selectedPackage, setSelectedPackage] = useState<string | null>(null);
   const [selectedTicket, setSelectedTicket] = useState<Ticket | null>(null);
+  const [selectedCheckboxes, setSelectedCheckboxes] = useState<
+    CheckboxValueType[]
+  >([]);
+  const [appliedUsageStatus, setAppliedUsageStatus] = useState<string>("");
+
+  const handleCheckboxChange = (checkedValues: CheckboxValueType[]) => {
+    if (checkedValues.includes('all')) {
+      setSelectedCheckboxes(['all']);
+    } else {
+      setSelectedCheckboxes(checkedValues.filter(value => value !== 'all'));
+    }
+    setSelectedCheckboxes(checkedValues);
+  };
 
   // column table
   const familyPackageColumns = [
@@ -213,25 +228,25 @@ const ManageTicket = () => {
   };
 
   const handleFilterSubmit = () => {
+    setAppliedUsageStatus(usageStatus);
     setShowModal(false);
   };
 
-  const handleEdit = (record: Ticket ) => {
+  const handleEdit = (record: Ticket) => {
     setSelectedTicket(record);
-    console.log(record)
+    console.log(record);
     setShowModalAction(true);
   };
 
   // striped table
-   
 
   // search
-  const searchDevices = () => {
+  const searchData = () => {
     let filteredData = data;
 
     if (searchText !== "") {
       filteredData = filteredData.filter(
-        (ticket) =>
+        (ticket: any) =>
           ticket.bookingCode &&
           ticket.bookingCode.toLowerCase().includes(searchText.toLowerCase())
       );
@@ -242,16 +257,29 @@ const ManageTicket = () => {
 
   // render table
   const renderTable = () => {
+    
+    let filteredData = searchData();
+    
+    if (selectedCheckboxes.length > 0 && !selectedCheckboxes.includes("all")) {
+      filteredData = filteredData.filter((ticket) =>
+        selectedCheckboxes.includes(ticket.checkinGate as CheckboxValueType)
+      );
+    }
+
+    if (appliedUsageStatus) {
+      filteredData = filteredData.filter(
+        (ticket) => ticket.usageStatus === appliedUsageStatus
+      );
+    }
     if (selectedPackage === "Gói gia đình") {
       return (
         <Table
           columns={familyPackageColumns}
-          dataSource={searchDevices()}
+          dataSource={filteredData}
           rowClassName={rowClassName}
           bordered
           size="middle"
           pagination={{ position: ["bottomCenter"] }}
-          
         />
       );
     }
@@ -270,7 +298,7 @@ const ManageTicket = () => {
     return (
       <Table
         columns={familyPackageColumns}
-        dataSource={searchDevices()}
+        dataSource={filteredData}
         rowClassName={rowClassName}
         bordered
         size="small"
@@ -326,7 +354,7 @@ const ManageTicket = () => {
               okText="Lọc"
               className="custom__modal"
             >
-              <h1 className="text-center">Lọc vé</h1>
+              <h5 className="text-center fw-bold">Lọc vé</h5>
 
               <Form layout="vertical" className="raido__custom">
                 <div>
@@ -362,12 +390,35 @@ const ManageTicket = () => {
                 </Form.Item>
               </Form>
 
-              <Form layout="vertical">
-                <Form.Item label="Cổng Check - in">
-                  <Checkbox>Tất cả</Checkbox>
-                  <Checkbox.Group className="radio__custom"></Checkbox.Group>
-                </Form.Item>
-              </Form>
+              <div className="d-flex flex-wrap justify-content-between">
+                <Checkbox.Group
+                  value={selectedCheckboxes}
+                  onChange={handleCheckboxChange}
+                >
+                  <div className="row">
+                    <Checkbox className="item" value="all">
+                      Tất cả
+                    </Checkbox>
+                    <Checkbox className="item" value="Cổng 1">
+                      Cổng 1
+                    </Checkbox>
+                    <Checkbox className="item" value="Cổng 2">
+                      Cổng 2
+                    </Checkbox>
+                  </div>
+                  <div className="row">
+                    <Checkbox className="item" value="Cổng 3">
+                      Cổng 3
+                    </Checkbox>
+                    <Checkbox className="item" value="Cổng 4">
+                      Cổng 4
+                    </Checkbox>
+                    <Checkbox className="item" value="Cổng 5">
+                      Cổng 5
+                    </Checkbox>
+                  </div>
+                </Checkbox.Group>
+              </div>
             </Modal>
           </div>
         </div>
@@ -378,27 +429,30 @@ const ManageTicket = () => {
         visible={showModalAction}
         onCancel={() => setShowModalAction(false)}
         className="modal__btn"
-        okText= "Lưu"
-        cancelText ="Hủy"
+        okText="Lưu"
+        cancelText="Hủy"
       >
         <div>
           <h6 className="text-center">Đổi ngày sử dụng vé</h6>
           {selectedTicket && (
-            <div className="d-flex"> 
-                <div className="d-flex flex-column">
-                  <p>Mã vé</p>
-                  <p>Số vé</p>
-                  <p>Tên sự kiện</p>
-                  <p>Hạn sử dụng</p>
-                </div>
-                <div className="d-flex flex-column" style={{marginLeft: '80px'}}>
-                  <p>{selectedTicket.bookingCode}</p>
-                  <p>Vé cổng - Gói sự kiện</p>
-                  <p>{selectedTicket.eventName}</p>
-                  <p>
-                      <DatePicker/>
-                  </p>
-                </div>
+            <div className="d-flex">
+              <div className="d-flex flex-column">
+                <p>Mã vé</p>
+                <p>Số vé</p>
+                <p>Tên sự kiện</p>
+                <p>Hạn sử dụng</p>
+              </div>
+              <div
+                className="d-flex flex-column"
+                style={{ marginLeft: "80px" }}
+              >
+                <p>{selectedTicket.bookingCode}</p>
+                <p>Vé cổng - Gói sự kiện</p>
+                <p>{selectedTicket.eventName}</p>
+                <p>
+                  <DatePicker />
+                </p>
+              </div>
             </div>
           )}
         </div>
