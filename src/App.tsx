@@ -1,12 +1,13 @@
 import { Routes, Route, BrowserRouter } from "react-router-dom";
-import Dashboard from "./components/Dashboard/Dashboard";
-import ManageTicket from "./components/ManageTicket/ManageTicket";
+import Dashboard from "./pages/Dashboard/Dashboard";
 import { Layout } from "antd";
 import MenuBar from "./components/SiderMenu/MenuBar";
 import HeaderComponents from "./components/Header/HeaderComponents";
 import "./App.css";
-import TicketReconci from "./components/TicketReconciliation/TicketReconci";
-import ListTicket from "./components/ListTicket/ListTicket";
+import TicketReconci from "./pages/TicketReconciliation/TicketReconci";
+import ListTicket from "./pages/ListTicket/ListTicket";
+import ManageTicket from "./pages/ManageTicket/ManageTicket";
+
 
 function App() {
   const labels = ["Thứ 2", "Thứ 3", "Thứ 4", "Thứ 5", "Thứ 6", "Thứ 7", "CN"];

@@ -3,18 +3,15 @@ import {
   Badge,
   Button,
   Card,
-  Checkbox,
-  Col,
+ 
   DatePicker,
   Form,
   Input,
   Modal,
-  Row,
   Select,
   Space,
   Table,
   Tag,
-  TimePicker,
 } from "antd";
 import { useState, useEffect } from "react";
 import "./style.css";
@@ -30,7 +27,7 @@ import { saveAs } from "file-saver";
 import Papa from "papaparse";
 import { useForm } from "antd/es/form/Form";
 import dayjs from "dayjs";
-import { rowClassName } from "../StripedTable";
+import { rowClassName } from './../../components/StripedTable/index';
 
 const ListTicket = () => {
   const [showModal, setShowModal] = useState(false);

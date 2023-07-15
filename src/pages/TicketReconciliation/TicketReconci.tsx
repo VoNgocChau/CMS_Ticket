@@ -8,13 +8,16 @@ import {
   fetchDataReconciliation,
   updateReconciliationData,
 } from "../../redux/reconciliation_ticketSlice";
-import { rowClassName } from "../StripedTable";
+import { rowClassName } from "./../../components/StripedTable/index";
+import dayjs, { Dayjs } from "dayjs";
+import advancedFormat from "dayjs/plugin/advancedFormat";
+dayjs.extend(advancedFormat);
 
 const columns = [
   {
     title: "STT",
     dataIndex: "",
-    render: (_:any,__: any,index: any) => index + 1
+    render: (_: any, __: any, index: any) => index + 1,
   },
   {
     title: "Số vé",
@@ -46,6 +49,8 @@ const TicketReconci = () => {
   const [filteredDatas, setFilteredData] = useState<
     ReconciliationTicket[] | undefined
   >([]); // Dữ liệu đã lọc
+  const [startDate, setStartDate] = useState<Dayjs | null>(null);
+  const [endDate, setEndDate] = useState<Dayjs | null>(null);
 
   useEffect(() => {
     dispatch(fetchDataReconciliation());
@@ -53,29 +58,34 @@ const TicketReconci = () => {
 
   useEffect(() => {
     // Áp dụng điều kiện lọc khi filterStatus hoặc data thay đổi
-    if (data) {
-      const filtered = filterData(data, filterStatus);
-      setFilteredData(filtered);
-    }
-  }, [data, filterStatus]);
-
-  const filterData = (data: ReconciliationTicket[], filterStatus: string) => {
-    if (filterStatus === "all") {
-      return data;
-    } else if (filterStatus === "Chưa đối soát") {
-      return data.filter((ticket) => ticket.status === filterStatus);
-    } else if (filterStatus === "Đã đối soát") {
-      return data.filter((ticket) => ticket.status === filterStatus);
-    }
-  };
+    setFilteredData(data);
+  }, [data]);
 
   const handleFilterSubmit = () => {
+    const filterData = (data: ReconciliationTicket[], filterStatus: string) => {
+      if (filterStatus === "all") {
+        return data;
+      } else if (filterStatus === "Chưa đối soát") {
+        return data.filter((ticket) => ticket.status === filterStatus);
+      } else if (filterStatus === "Đã đối soát") {
+        return data.filter((ticket) => ticket.status === filterStatus);
+      }
+    };
     if (data) {
-      const filtered = filterData(data, filterStatus);
+      let filtered = filterData(data, filterStatus);
+      if (startDate?.format("DD/MM/YYYY")) {
+        filtered = filtered?.filter((ticket) =>
+          dayjs(ticket.dateUsage).isAfter(startDate, "day")
+        );
+      }
+      if (endDate?.format("DD/MM/YYYY")) {
+        filtered = filtered?.filter((ticket) =>
+          dayjs(ticket.dateUsage).isBefore(endDate, "day")
+        );
+      }
       setFilteredData(filtered);
     }
   };
-
 
   // chot doi soat
   const handleReconciliation = () => {
@@ -136,11 +146,13 @@ const TicketReconci = () => {
           rowClassName={rowClassName}
         />
       </Card>
-      
-        <Card className="card__style">
+
+      <div className="card__style">
         <Form layout="horizontal">
           <h5>Lọc vé</h5>
-          <Form.Item label={<span className="txt__recon">Tình trạng đối soát</span>}>
+          <Form.Item
+            label={<span className="txt__recon">Tình trạng đối soát</span>}
+          >
             <Radio.Group
               style={{
                 display: "flex",
@@ -159,18 +171,28 @@ const TicketReconci = () => {
             <p className="text__style">Vé cổng</p>
           </Form.Item>
           <Form.Item label={<span className="txt__recon">Từ ngày</span>}>
-            <DatePicker format={"DD/MM/YYYY"} />
+            <DatePicker
+              format={"DD/MM/YYYY"}
+              value={startDate}
+              onChange={(date) => setStartDate(date)}
+            />
           </Form.Item>
           <Form.Item label={<span className="txt__recon">Đến ngày</span>}>
-            <DatePicker format={"DD/MM/YYYY"} />
+            <DatePicker
+              format={"DD/MM/YYYY"}
+              value={endDate}
+              onChange={(date) => {
+                setEndDate(date);
+              }}
+            />
           </Form.Item>
           <Form.Item className="d-flex justify-content-center">
             <Button className="btn__loc" onClick={handleFilterSubmit}>
               Lọc
             </Button>
           </Form.Item>
-      </Form>
-        </Card>
+        </Form>
+      </div>
     </div>
   );
 };

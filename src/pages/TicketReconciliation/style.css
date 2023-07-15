@@ -38,9 +38,13 @@
 }
 
 .card__style {
-  width: 40em;
+  display: flex;
+  background-color: #ffff;
+  width: 30em;
   height: 560px;
   margin: 0 10px;
+  border-radius: 10px;
+  padding: 10px;
 }
 
 .text__style {

@@ -70,8 +70,8 @@ const MenuBar = () => {
         <div
           dangerouslySetInnerHTML={{ __html: icon_logo }}
           style={{
-            marginLeft: '5px',
-            marginBottom: '20px'
+            marginLeft: "5px",
+            marginBottom: "20px",
           }}
         ></div>
         {/* end_logo */}

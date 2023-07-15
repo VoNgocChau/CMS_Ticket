@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useMemo } from "react";
 import {
   Badge,
   Button,
@@ -15,20 +15,18 @@ import {
   Table,
   Tag,
 } from "antd";
-import "./ticket.css";
 import { FilterOutlined, MoreOutlined } from "@ant-design/icons";
 import { useAppDispatch, useAppSelector } from "../../redux/store";
 import { Ticket, fetchTicketData } from "../../redux/features/ticketSlice";
 import { exportToExcel } from "./exportExcel";
-import { fetchDataEvent } from "../../redux/features/eventSlice";
-import { rowClassName } from "../StripedTable";
 import { CheckboxValueType } from "antd/es/checkbox/Group";
-import dayjs from "dayjs";
+import "./ticket.css";
+import { rowClassName } from "../../components/StripedTable";
+import dayjs, { Dayjs } from "dayjs";
 
 const ManageTicket = () => {
   const dispatch = useAppDispatch();
   const data = useAppSelector((state) => state.tickets.tickets);
-  const eventData = useAppSelector((state) => state.events.events);
   const [searchText, setSearchText] = useState("");
   const [usageStatus, setUsageStatus] = useState<string>("");
   const [showModal, setShowModal] = useState(false);
@@ -39,12 +37,14 @@ const ManageTicket = () => {
     CheckboxValueType[]
   >([]);
   const [appliedUsageStatus, setAppliedUsageStatus] = useState<string>("");
-
+  const [fromDate, setFromDate] = useState<Dayjs | null>(null);
+  const [toDate, setToDate] = useState<Dayjs | null>(null);
+  const [filteredData, setFilteredData] = useState<Ticket[]>([]);
   const handleCheckboxChange = (checkedValues: CheckboxValueType[]) => {
-    if (checkedValues.includes('all')) {
-      setSelectedCheckboxes(['all']);
+    if (checkedValues.includes("all")) {
+      setSelectedCheckboxes(["all"]);
     } else {
-      setSelectedCheckboxes(checkedValues.filter(value => value !== 'all'));
+      setSelectedCheckboxes(checkedValues.filter((value) => value !== "all"));
     }
     setSelectedCheckboxes(checkedValues);
   };
@@ -213,15 +213,19 @@ const ManageTicket = () => {
   //end column table
 
   // fetch data from firebase
-  useEffect(() => {
+  useMemo(() => {
     const fetchData = async () => {
-      await Promise.all([
-        dispatch(fetchTicketData()),
-        dispatch(fetchDataEvent()),
-      ]);
+      await dispatch(fetchTicketData());
     };
     fetchData();
   }, [dispatch]);
+  const familyPackages = useMemo(() => {
+    return data.filter((ticket) => ticket.packageType === "Gói gia đình");
+  }, [data]);
+
+  const eventPackages = useMemo(() => {
+    return data.filter((ticket) => ticket.packageType === "Gói sự kiện");
+  }, [data]);
 
   const handleShowModal = () => {
     setShowModal(true);
@@ -229,7 +233,20 @@ const ManageTicket = () => {
 
   const handleFilterSubmit = () => {
     setAppliedUsageStatus(usageStatus);
+    // lay gia tri can loc
+    const fromDateString = fromDate ? dayjs(fromDate).format("DD/MM/YYYY") : "";
+    const toDateString = toDate ? dayjs(toDate).format("DD/MM/YYYY") : "";
+    let data = searchData();
+
+    if (fromDate) {
+      data = data.filter((ticket) => ticket.dateUsage >= fromDateString);
+    }
+
+    if (toDate) {
+      data = data.filter((ticket) => ticket.dateUsage <= toDateString);
+    }
     setShowModal(false);
+    setFilteredData(data);
   };
 
   const handleEdit = (record: Ticket) => {
@@ -238,11 +255,17 @@ const ManageTicket = () => {
     setShowModalAction(true);
   };
 
-  // striped table
-
   // search
   const searchData = () => {
-    let filteredData = data;
+    let filteredData = [];
+
+    if (selectedPackage === "Gói gia đình") {
+      filteredData = familyPackages;
+    } else if (selectedPackage === "Gói sự kiện") {
+      filteredData = eventPackages;
+    } else {
+      filteredData = data;
+    }
 
     if (searchText !== "") {
       filteredData = filteredData.filter(
@@ -257,9 +280,8 @@ const ManageTicket = () => {
 
   // render table
   const renderTable = () => {
-    
     let filteredData = searchData();
-    
+
     if (selectedCheckboxes.length > 0 && !selectedCheckboxes.includes("all")) {
       filteredData = filteredData.filter((ticket) =>
         selectedCheckboxes.includes(ticket.checkinGate as CheckboxValueType)
@@ -271,11 +293,12 @@ const ManageTicket = () => {
         (ticket) => ticket.usageStatus === appliedUsageStatus
       );
     }
+
     if (selectedPackage === "Gói gia đình") {
       return (
         <Table
           columns={familyPackageColumns}
-          dataSource={filteredData}
+          dataSource={familyPackages}
           rowClassName={rowClassName}
           bordered
           size="middle"
@@ -283,11 +306,12 @@ const ManageTicket = () => {
         />
       );
     }
+
     if (selectedPackage === "Gói sự kiện") {
       return (
         <Table
           columns={eventPackageColumns}
-          dataSource={eventData}
+          dataSource={eventPackages}
           rowClassName={rowClassName}
           bordered
           size="small"
@@ -295,6 +319,7 @@ const ManageTicket = () => {
         />
       );
     }
+
     return (
       <Table
         columns={familyPackageColumns}
@@ -331,6 +356,7 @@ const ManageTicket = () => {
             value={searchText}
             onChange={(e) => setSearchText(e.target.value)}
           />
+
           <div>
             <Space>
               <Button
@@ -347,6 +373,7 @@ const ManageTicket = () => {
                 Xuất file(.xlsx)
               </Button>
             </Space>
+
             <Modal
               visible={showModal}
               onCancel={() => setShowModal(false)}
@@ -362,6 +389,8 @@ const ManageTicket = () => {
                     <DatePicker
                       className="custom__datepicker"
                       format="DD/MM/YYYY"
+                      value={fromDate}
+                      onChange={(date) => setFromDate(date)}
                     />
                   </Form.Item>
                 </div>
@@ -370,6 +399,8 @@ const ManageTicket = () => {
                     <DatePicker
                       className="custom__datepicker"
                       format="DD/MM/YYYY"
+                      value={toDate}
+                      onChange={(date) => setToDate(date)}
                     />
                   </Form.Item>
                 </div>

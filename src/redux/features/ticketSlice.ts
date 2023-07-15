@@ -11,7 +11,7 @@ export interface Ticket {
     dateIssue: string;
     checkinGate: string;
     eventName: string;
-    checkboxValue?: number; 
+    packageType?: string;
 }
 
 interface TicketState {
