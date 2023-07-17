@@ -24,10 +24,16 @@ function App() {
     ],
   };
   const chartOptions = {
+    elements: {
+      line: {
+        tension: 0.4,
+      }
+    },
     plugins: {
       legend: {
         display: false, // Loại bỏ hình dấu chấm tròn
       },
+      
     },
     scales: {
       x: {

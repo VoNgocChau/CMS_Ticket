@@ -13,51 +13,56 @@ import dayjs, { Dayjs } from "dayjs";
 import advancedFormat from "dayjs/plugin/advancedFormat";
 dayjs.extend(advancedFormat);
 
-const columns = [
-  {
-    title: "STT",
-    dataIndex: "",
-    render: (_: any, __: any, index: any) => index + 1,
-  },
-  {
-    title: "Số vé",
-    dataIndex: "numberTicket",
-  },
-  {
-    title: "Ngày sử dụng",
-    dataIndex: "dataUsage",
-  },
-  {
-    title: "Tên loại vé",
-    dataIndex: "nameTicket",
-  },
-  {
-    title: "Cổng check - in",
-    dataIndex: "checkinGate",
-  },
-  {
-    title: "",
-    dataIndex: "status",
-  },
-];
-
 const TicketReconci = () => {
   const dispatch = useAppDispatch();
   const data = useAppSelector((state) => state.reconciliation.tickets);
   const [filterStatus, setFilterStatus] = useState("all");
   const [searchText, setSearchText] = useState("");
-  const [filteredDatas, setFilteredData] = useState<
-    ReconciliationTicket[] | undefined
-  >([]); // Dữ liệu đã lọc
+  const [filteredData, setFilteredData] =
+    useState<ReconciliationTicket[]>(data);
   const [startDate, setStartDate] = useState<Dayjs | null>(null);
   const [endDate, setEndDate] = useState<Dayjs | null>(null);
+  const columns = [
+    {
+      title: "STT",
+      dataIndex: "",
+      render: (_: any, __: any, index: any) => index + 1,
+    },
+    {
+      title: "Số vé",
+      dataIndex: "numberTicket",
+    },
+    {
+      title: "Ngày sử dụng",
+      dataIndex: "dataUsage",
+    },
+    {
+      title: "Tên loại vé",
+      dataIndex: "nameTicket",
+    },
+    {
+      title: "Cổng check - in",
+      dataIndex: "checkinGate",
+    },
+    {
+      title: "",
+      dataIndex: "status",
+      render: (status: string) => {
+        if (status === "Chưa đối soát") {
+          return <i style={{ color: "gray" }}>Chưa đối soát</i>;
+        } else if (status === "Đã đối soát") {
+          return <i style={{ color: "red" }}>Đã đối soát</i>;
+        }
+        return null;
+      },
+    },
+  ];
 
   useEffect(() => {
     dispatch(fetchDataReconciliation());
   }, [dispatch]);
 
   useEffect(() => {
-    // Áp dụng điều kiện lọc khi filterStatus hoặc data thay đổi
     setFilteredData(data);
   }, [data]);
 
@@ -65,53 +70,53 @@ const TicketReconci = () => {
     const filterData = (data: ReconciliationTicket[], filterStatus: string) => {
       if (filterStatus === "all") {
         return data;
-      } else if (filterStatus === "Chưa đối soát") {
-        return data.filter((ticket) => ticket.status === filterStatus);
-      } else if (filterStatus === "Đã đối soát") {
-        return data.filter((ticket) => ticket.status === filterStatus);
       }
+      return data.filter((ticket) => ticket.status === filterStatus);
     };
-    if (data) {
-      let filtered = filterData(data, filterStatus);
-      if (startDate?.format("DD/MM/YYYY")) {
-        filtered = filtered?.filter((ticket) =>
-          dayjs(ticket.dateUsage).isAfter(startDate, "day")
-        );
-      }
-      if (endDate?.format("DD/MM/YYYY")) {
-        filtered = filtered?.filter((ticket) =>
-          dayjs(ticket.dateUsage).isBefore(endDate, "day")
-        );
-      }
-      setFilteredData(filtered);
+
+    let filtered = filterData(data, filterStatus);
+
+    if (startDate) {
+      filtered = filtered.filter((ticket) =>
+        dayjs(ticket.dateUsage).isAfter(startDate, "day")
+      );
     }
+
+    if (endDate) {
+      filtered = filtered.filter((ticket) =>
+        dayjs(ticket.dateUsage).isBefore(endDate, "day")
+      );
+    }
+
+    setFilteredData(filtered);
   };
 
-  // chot doi soat
   const handleReconciliation = () => {
-    // lay danh sach chua doi soat
     const unreconciledTickets = data.filter(
-      (ticket) => ticket.status === "Chưa đối soát"
+      (ticket: any) => ticket.status === "Chưa đối soát"
     );
 
-    // thay doi trang thai thanh da doi soat
     const updatedTickets = unreconciledTickets.map((ticket) => ({
       ...ticket,
       status: "Đã đối soát",
     }));
+
     dispatch(updateReconciliationData(updatedTickets));
+  };
+
+  const handleExportExcel = () => {
+    // Logic to export data to Excel
   };
 
   const handleFilterChange = (e: any) => {
     setFilterStatus(e.target.value);
   };
 
-  // search
   const searchDevices = () => {
-    let searchData = filteredDatas;
+    let searchData = filteredData;
 
     if (searchText !== "") {
-      searchData = searchData?.filter(
+      searchData = searchData.filter(
         (ticket) =>
           ticket.numberTicket &&
           ticket.numberTicket.toLowerCase().includes(searchText.toLowerCase())
@@ -120,6 +125,10 @@ const TicketReconci = () => {
 
     return searchData;
   };
+
+  const isAllReconciled = data.every(
+    (ticket) => ticket.status === "Đã đối soát"
+  );
 
   return (
     <div className="d-flex">
@@ -134,8 +143,11 @@ const TicketReconci = () => {
             value={searchText}
             onChange={(e) => setSearchText(e.target.value)}
           />
-          <Button className="btn__custom" onClick={handleReconciliation}>
-            Chốt đối soát
+          <Button
+            className="btn__custom"
+            onClick={isAllReconciled ? handleExportExcel : handleReconciliation}
+          >
+            {isAllReconciled ? "Xuất file Excel" : "Chốt đối soát"}
           </Button>
         </div>
         <Table

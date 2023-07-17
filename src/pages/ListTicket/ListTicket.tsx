@@ -3,7 +3,6 @@ import {
   Badge,
   Button,
   Card,
- 
   DatePicker,
   Form,
   Input,
@@ -27,7 +26,7 @@ import { saveAs } from "file-saver";
 import Papa from "papaparse";
 import { useForm } from "antd/es/form/Form";
 import dayjs from "dayjs";
-import { rowClassName } from './../../components/StripedTable/index';
+import { rowClassName } from "./../../components/StripedTable/index";
 
 const ListTicket = () => {
   const [showModal, setShowModal] = useState(false);
@@ -45,59 +44,58 @@ const ListTicket = () => {
     dispatch(fetchDataPackage());
   }, [dispatch]);
 
-  //add
   const handleAddPackage = async (values: ListPackage) => {
-    const { priceTicket, priceCombo, numCombo } = values;
-    const newPackages = {
+    const { priceTicket = 0, priceCombo = 0, numCombo = 0 } = values;
+    const newPackage = {
       ...values,
       dateStart: dayjs(values.dateStart).format("DD/MM/YYYY"),
       dateEnd: dayjs(values.dateEnd).format("DD/MM/YYYY"),
-      priceTicket: priceTicket !== undefined ? priceTicket : 0,
-      priceCombo: priceCombo !== undefined ? priceCombo : 0,
-      numCombo: numCombo !== undefined ? numCombo : 0,
+      priceTicket,
+      priceCombo,
+      numCombo,
     };
 
     try {
-      dispatch(addPackage(newPackages));
+      dispatch(addPackage(newPackage));
       form.resetFields();
-      console.log(newPackages);
-    } catch (err) {}
+    } catch (err) {
+      console.log(err);
+    }
   };
 
-  //update
   const handleUpdatePackage = (values: any) => {
     if (selectedPackages) {
-      const updatePackages = {
+      const updatedPackage = {
         ...selectedPackages,
         packageCode: values.packageCode,
         packageName: values.packageName,
-        dateStart: values.dateStart,
-        dateEnd: values.dateEnd,
+        dateStart: dayjs(values.dateStart).format("DD/MM/YYYY"),
+        dateEnd: dayjs(values.dateEnd).format("DD/MM/YYYY"),
         priceTicket: values.priceTicket,
         priceCombo: values.priceCombo,
         numCombo: values.numCombo,
         status: values.status,
       };
-      dispatch(editPackage(updatePackages));
+
+      dispatch(editPackage(updatedPackage));
       setShowModal(false);
-      console.log(updatePackages);
     } else {
       console.log("error");
     }
   };
 
-  const handleIdPackge = (id: string) => {
+  const handleIdPackage = (id: string) => {
     dispatch(selectPackages(id));
     setShowModal(true);
-    console.log(id);
   };
 
-  const handleOk = (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => {
+  const handleOk = () => {
     if (isUpdateMode) {
       form.submit();
     } else {
-      handleAddPackage(form.getFieldsValue()); // Gọi handleAddPackage và chuyển giá trị values từ form
+      handleAddPackage(form.getFieldsValue());
     }
+    setShowModal(false)
   };
 
   const handleShowModal = () => {
@@ -106,11 +104,9 @@ const ListTicket = () => {
     setShowModal(true);
   };
 
-  // export CSV file
   const exportToCSV = () => {
     const csv = Papa.unparse(data);
-    const blobParts: BlobPart[] = [csv];
-    const blob = new Blob(blobParts, { type: "text/csv;charset=utf-8" });
+    const blob = new Blob([csv], { type: "text/csv;charset=utf-8" });
     saveAs(blob, "data.csv");
   };
 
@@ -138,15 +134,16 @@ const ListTicket = () => {
     {
       title: "Giá vé (VNĐ/Vé)",
       dataIndex: "priceTicket",
+      render: (text: any, record: ListPackage) => (
+        <span>{record.priceTicket} VNĐ</span>
+      )
     },
     {
       title: "Giá combo (VNĐ/Combo)",
       dataIndex: "priceCombo",
-
       render: (text: any, record: ListPackage) => (
         <div>
           <span>{record.priceCombo} VNĐ</span>
-
           <span>/{record.numCombo} Vé</span>
         </div>
       ),
@@ -154,24 +151,18 @@ const ListTicket = () => {
     {
       title: "Status",
       dataIndex: "status",
-      render: (status: boolean) =>
-        status ? (
-          <Tag color="green">
-            <Badge color="green" style={{ margin: "0 5px" }} />
-            Đang áp dụng
-          </Tag>
-        ) : (
-          <Tag color="red">
-            <Badge color="red" style={{ margin: "0 5px" }} />
-            Tắt
-          </Tag>
-        ),
+      render: (status: boolean) => (
+        <Tag color={status ? "green" : "red"}>
+          <Badge color={status ? "green" : "red"} style={{ margin: "0 5px" }} />
+          {status ? "Đang áp dụng" : "Tắt"}
+        </Tag>
+      ),
     },
     {
       title: "",
       dataIndex: "",
       key: "actions",
-      render: (record: any) => (
+      render: (record: ListPackage) => (
         <Button
           icon={<EditOutlined />}
           type="text"
@@ -179,6 +170,17 @@ const ListTicket = () => {
           onClick={() => {
             setIsUpdateMode(true);
             setShowModal(true);
+            form.setFieldsValue({
+              packageCode: record.packageCode,
+              packageName: record.packageName,
+              dateStart: dayjs(record.dateStart).format("DD/MM/YYYY"),
+              dateEnd: dayjs(record.dateEnd).format("DD/MM/YYYY"),
+              priceTicket: record.priceTicket,
+              priceCombo: record.priceCombo,
+              numCombo: record.numCombo,
+              status: record.status,
+            });
+            handleIdPackage(record.id);
           }}
         >
           Cập nhật
@@ -186,17 +188,15 @@ const ListTicket = () => {
       ),
     },
   ];
+
   const pageSize = 5;
 
-  // search
   const searchDevices = () => {
     let filteredData = data;
 
     if (searchText !== "") {
-      filteredData = filteredData.filter(
-        (ticket) =>
-          ticket.packageCode &&
-          ticket.packageCode.toLowerCase().includes(searchText.toLowerCase())
+      filteredData = filteredData.filter((ticket) =>
+        ticket.packageCode?.toLowerCase().includes(searchText.toLowerCase())
       );
     }
 
@@ -224,12 +224,7 @@ const ListTicket = () => {
               <Button onClick={exportToCSV} className="btn__custom_border">
                 Xuất file (.csv)
               </Button>
-              <Button
-                onClick={() => {
-                  handleShowModal();
-                }}
-                className="btn__custom"
-              >
+              <Button onClick={handleShowModal} className="btn__custom">
                 Thêm gói vé
               </Button>
             </Space>
@@ -261,7 +256,7 @@ const ListTicket = () => {
                     ]}
                   >
                     <Input
-                      placeholder="Nhập tên gói vé"
+                      placeholder="Nhập mã gói vé"
                       className="input__package"
                     />
                   </Form.Item>
@@ -292,16 +287,12 @@ const ListTicket = () => {
                     <Space>
                       <DatePicker
                         placeholder="dd/mm/yy"
-                        format={"DD/MM/YYYY"}
+                        format="DD/MM/YYYY"
                         className="picker_style"
                         onChange={(date) =>
                           form.setFieldsValue({ dateStart: date })
                         }
                       />
-                      {/* <TimePicker
-                          placeholder="hh/mm/ss"
-                          className="picker_style"
-                        /> */}
                     </Space>
                   </Form.Item>
                   <Form.Item
@@ -317,16 +308,12 @@ const ListTicket = () => {
                     <Space>
                       <DatePicker
                         placeholder="dd/mm/yy"
-                        format={"DD/MM/YYYY"}
+                        format="DD/MM/YYYY"
                         className="picker_style"
                         onChange={(date) =>
                           form.setFieldsValue({ dateEnd: date })
                         }
                       />
-                      {/* <TimePicker
-                          placeholder="hh/mm/ss"
-                          className="picker_style"
-                        /> */}
                     </Space>
                   </Form.Item>
                 </div>
@@ -361,7 +348,7 @@ const ListTicket = () => {
                     { required: true, message: "Vui lòng chọn tình trạng!" },
                   ]}
                 >
-                  <Select className="custom__select">
+                  <Select className="custom__select w-25">
                     <Select.Option value={true}>Đang hoạt động</Select.Option>
                   </Select>
                 </Form.Item>
@@ -376,26 +363,8 @@ const ListTicket = () => {
         <Table
           columns={columns}
           dataSource={searchDevices()}
-          pagination={{ position: ["bottomCenter"], pageSize: pageSize }}
+          pagination={{ position: ["bottomCenter"], pageSize }}
           rowKey={(record) => record.id}
-          onRow={(record) => ({
-            onClick: () => {
-              setIsUpdateMode(true);
-              setShowModal(true);
-
-              form.setFieldsValue({
-                packageCode: record.packageCode,
-                packageName: record.packageName,
-                dateStart: record.dateStart,
-                dateEnd: record.dateEnd,
-                priceTicket: record.priceTicket,
-                priceCombo: record.priceCombo,
-                numCombo: record.numCombo,
-                status: record.status,
-              });
-              handleIdPackge(record.id);
-            },
-          })}
           size="small"
           rowClassName={rowClassName}
         />
