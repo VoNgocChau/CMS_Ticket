@@ -11,6 +11,7 @@ import {
   Space,
   Table,
   Tag,
+  TimePicker,
 } from "antd";
 import { useState, useEffect } from "react";
 import "./style.css";
@@ -45,11 +46,19 @@ const ListTicket = () => {
   }, [dispatch]);
 
   const handleAddPackage = async (values: ListPackage) => {
-    const { priceTicket = 0, priceCombo = 0, numCombo = 0 } = values;
+    const {
+      priceTicket = 0,
+      priceCombo = 0,
+      numCombo = 0,
+      timeStart,
+      timeEnd,
+    } = values;
     const newPackage = {
       ...values,
       dateStart: dayjs(values.dateStart).format("DD/MM/YYYY"),
       dateEnd: dayjs(values.dateEnd).format("DD/MM/YYYY"),
+      timeStart: dayjs(timeStart).format("HH:mm:ss"),
+      timeEnd: dayjs(timeEnd).format("HH:mm:ss"),
       priceTicket,
       priceCombo,
       numCombo,
@@ -63,7 +72,7 @@ const ListTicket = () => {
     }
   };
 
-  const handleUpdatePackage = (values: any) => {
+  const handleUpdatePackage = (values: ListPackage) => {
     if (selectedPackages) {
       const updatedPackage = {
         ...selectedPackages,
@@ -71,6 +80,8 @@ const ListTicket = () => {
         packageName: values.packageName,
         dateStart: dayjs(values.dateStart).format("DD/MM/YYYY"),
         dateEnd: dayjs(values.dateEnd).format("DD/MM/YYYY"),
+        timeStart: dayjs(values.timeStart).format("HH:mm:ss"),
+        timeEnd: dayjs(values.timeEnd).format("HH:mm:ss"),
         priceTicket: values.priceTicket,
         priceCombo: values.priceCombo,
         numCombo: values.numCombo,
@@ -91,11 +102,16 @@ const ListTicket = () => {
 
   const handleOk = () => {
     if (isUpdateMode) {
-      form.submit();
+      form.validateFields().then((values: ListPackage) => {
+        handleUpdatePackage(values);
+        setShowModal(false);
+      });
     } else {
-      handleAddPackage(form.getFieldsValue());
+      form.validateFields().then((values: ListPackage) => {
+        handleAddPackage(values);
+        setShowModal(false);
+      });
     }
-    setShowModal(false)
   };
 
   const handleShowModal = () => {
@@ -126,24 +142,43 @@ const ListTicket = () => {
     {
       title: "Ngày áp dụng",
       dataIndex: "dateStart",
+      render: (text: any, record: ListPackage) => (
+        <>
+          <small>
+            {dayjs(`${record.dateStart} ${record.timeStart}`).format(
+              "MM/DD/YYYY HH:mm:ss"
+            )}
+          </small>
+        </>
+      ),
     },
     {
       title: "Ngày hết hạn",
       dataIndex: "dateEnd",
+      render: (text: any, record: ListPackage) => (
+        <>
+          <small>
+            {dayjs(
+              `${record.dateEnd} ${record.timeEnd}`,
+              "DD/MM/YYYY HH:mm:ss"
+            ).format("MM/DD/YYYY HH:mm:ss")}
+          </small>
+        </>
+      ),
     },
     {
       title: "Giá vé (VNĐ/Vé)",
       dataIndex: "priceTicket",
       render: (text: any, record: ListPackage) => (
-        <span>{record.priceTicket} VNĐ</span>
-      )
+        <span>{Number(record.priceTicket).toFixed(3)} VNĐ</span>
+      ),
     },
     {
       title: "Giá combo (VNĐ/Combo)",
       dataIndex: "priceCombo",
       render: (text: any, record: ListPackage) => (
         <div>
-          <span>{record.priceCombo} VNĐ</span>
+          <span>{Number(record.priceCombo).toFixed(3)} VNĐ</span>
           <span>/{record.numCombo} Vé</span>
         </div>
       ),
@@ -175,6 +210,8 @@ const ListTicket = () => {
               packageName: record.packageName,
               dateStart: dayjs(record.dateStart).format("DD/MM/YYYY"),
               dateEnd: dayjs(record.dateEnd).format("DD/MM/YYYY"),
+              timeStart: dayjs(record.timeStart).format("HH:mm:ss"),
+              timeEnd: dayjs(record.timeEnd).format("HH:mm:ss"),
               priceTicket: record.priceTicket,
               priceCombo: record.priceCombo,
               numCombo: record.numCombo,
@@ -293,6 +330,13 @@ const ListTicket = () => {
                           form.setFieldsValue({ dateStart: date })
                         }
                       />
+                      <TimePicker
+                        className="picker_style"
+                        placeholder="HH/mm/ss"
+                        onChange={(time, timeString) =>
+                          form.setFieldsValue({ timeStart: timeString })
+                        }
+                      />
                     </Space>
                   </Form.Item>
                   <Form.Item
@@ -312,6 +356,13 @@ const ListTicket = () => {
                         className="picker_style"
                         onChange={(date) =>
                           form.setFieldsValue({ dateEnd: date })
+                        }
+                      />
+                      <TimePicker
+                        className="picker_style"
+                        placeholder="HH/mm/ss"
+                        onChange={(time) =>
+                          form.setFieldsValue({ timeEnd: time })
                         }
                       />
                     </Space>

@@ -23,6 +23,19 @@ import { CheckboxValueType } from "antd/es/checkbox/Group";
 import "./ticket.css";
 import { rowClassName } from "../../components/StripedTable";
 import dayjs, { Dayjs } from "dayjs";
+interface State {
+  searchText: string;
+  usageStatus: string;
+  showModal: boolean;
+  showModalAction: boolean;
+  selectedPackage: string | null;
+  selectedTicket: Ticket | null;
+  selectedCheckboxes: CheckboxValueType[];
+  appliedUsageStatus: string;
+  fromDate: Dayjs | null;
+  toDate: Dayjs | null;
+  filteredData: Ticket[];
+}
 
 const ManageTicket = () => {
   const dispatch = useAppDispatch();
@@ -139,7 +152,7 @@ const ManageTicket = () => {
     },
     {
       title: "Tên sự kiện",
-      dataIndex: "nameEvent",
+      dataIndex: "eventName",
     },
     {
       title: "Tình trạng sử dụng",
@@ -219,34 +232,59 @@ const ManageTicket = () => {
     };
     fetchData();
   }, [dispatch]);
-  const familyPackages = useMemo(() => {
-    return data.filter((ticket) => ticket.packageType === "Gói gia đình");
-  }, [data]);
+  const familyPackages = data.filter(
+    (ticket) => ticket.packageType === "Gói gia đình"
+  );
 
-  const eventPackages = useMemo(() => {
-    return data.filter((ticket) => ticket.packageType === "Gói sự kiện");
-  }, [data]);
+  const eventPackages = data.filter(
+    (ticket) => ticket.packageType === "Gói sự kiện"
+  );
 
   const handleShowModal = () => {
     setShowModal(true);
   };
+  // Function to apply all filters
+  const applyFilters = () => {
+    let filteredData = searchData();
 
-  const handleFilterSubmit = () => {
-    setAppliedUsageStatus(usageStatus);
-    // lay gia tri can loc
-    const fromDateString = fromDate ? dayjs(fromDate).format("DD/MM/YYYY") : "";
-    const toDateString = toDate ? dayjs(toDate).format("DD/MM/YYYY") : "";
-    let data = searchData();
+    if (selectedCheckboxes.length > 0 && !selectedCheckboxes.includes("all")) {
+      filteredData = filteredData.filter((ticket) =>
+        selectedCheckboxes.includes(ticket.checkinGate as CheckboxValueType)
+      );
+    }
+
+    if (usageStatus) {
+      filteredData = filteredData.filter(
+        (ticket) => ticket.usageStatus === usageStatus
+      );
+    }
 
     if (fromDate) {
-      data = data.filter((ticket) => ticket.dateUsage >= fromDateString);
+      const fromDateString = dayjs(fromDate).format("DD/MM/YYYY");
+      filteredData = filteredData.filter(
+        (ticket) => ticket.dateUsage >= fromDateString
+      );
     }
 
     if (toDate) {
-      data = data.filter((ticket) => ticket.dateUsage <= toDateString);
+      const toDateString = dayjs(toDate).format("DD/MM/YYYY");
+      filteredData = filteredData.filter(
+        (ticket) => ticket.dateUsage <= toDateString
+      );
     }
+
+    return filteredData;
+  };
+
+  const handleFilterSubmit = () => {
+    // Update the fromDate and toDate states
+    setUsageStatus(usageStatus);
+    console.log(usageStatus);
+    setFromDate(fromDate);
+    setToDate(toDate);
+
+    setFilteredData(applyFilters());
     setShowModal(false);
-    setFilteredData(data);
   };
 
   const handleEdit = (record: Ticket) => {
@@ -280,25 +318,11 @@ const ManageTicket = () => {
 
   // render table
   const renderTable = () => {
-    let filteredData = searchData();
-
-    if (selectedCheckboxes.length > 0 && !selectedCheckboxes.includes("all")) {
-      filteredData = filteredData.filter((ticket) =>
-        selectedCheckboxes.includes(ticket.checkinGate as CheckboxValueType)
-      );
-    }
-
-    if (appliedUsageStatus) {
-      filteredData = filteredData.filter(
-        (ticket) => ticket.usageStatus === appliedUsageStatus
-      );
-    }
-
     if (selectedPackage === "Gói gia đình") {
       return (
         <Table
           columns={familyPackageColumns}
-          dataSource={familyPackages}
+          dataSource={filteredData.length > 0 ? filteredData : familyPackages}
           rowClassName={rowClassName}
           bordered
           size="middle"
@@ -311,7 +335,7 @@ const ManageTicket = () => {
       return (
         <Table
           columns={eventPackageColumns}
-          dataSource={eventPackages}
+          dataSource={filteredData.length > 0 ? filteredData : eventPackages}
           rowClassName={rowClassName}
           bordered
           size="small"
@@ -323,7 +347,7 @@ const ManageTicket = () => {
     return (
       <Table
         columns={familyPackageColumns}
-        dataSource={filteredData}
+        dataSource={filteredData.length > 0 ? filteredData : searchData()}
         rowClassName={rowClassName}
         bordered
         size="small"

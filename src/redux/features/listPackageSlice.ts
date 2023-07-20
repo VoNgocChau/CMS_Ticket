@@ -10,6 +10,8 @@ export interface ListPackage {
   packageName: string;
   dateStart: string | null
   dateEnd: string | null;
+  timeStart: string,
+  timeEnd: string,
   priceTicket: number;
   priceCombo: number;
   numCombo: number;
